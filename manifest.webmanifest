@@ -1,0 +1,17 @@
+{
+  "name": "Estudio del color",
+  "short_name": "Estudio del color",
+  "description": "Laboratorio de teoría del color basado en los siete contrastes de Johannes Itten.",
+  "lang": "es",
+  "start_url": "./itten_color_studio.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0d0f12",
+  "theme_color": "#161920",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

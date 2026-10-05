@@ -1,0 +1,2618 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Estudio del color · Laboratorio de teoría del color</title>
+  <meta name="description" content="Laboratorio de teoría del color basado en los siete contrastes de Johannes Itten.">
+  <meta name="theme-color" content="#161920">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Estudio del color">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <script>
+    // El manifest solo se enlaza cuando la app se sirve por http(s); abierta con file:// el navegador no puede leerlo.
+    if (location.protocol !== "file:") {
+      const manifestLink = document.createElement("link");
+      manifestLink.rel = "manifest";
+      manifestLink.href = "manifest.webmanifest";
+      document.head.appendChild(manifestLink);
+    }
+  </script>
+  <style>
+    :root {
+      --bg: #0d0f12;
+      --panel-bg: #161920;
+      --card-bg: #1c202a;
+      --border-color: #2a3040;
+      --text-main: #f0f2f5;
+      --text-muted: #8e97ab;
+      --accent: #3b82f6;
+      --canvas-frame: #ffffff;
+      --frame-text: #475569;
+      --frame-text-soft: #64748b;
+      --shadow-elevation: 0 16px 36px rgba(0, 0, 0, 0.45);
+      --tap: 44px;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left: env(safe-area-inset-left, 0px);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    html {
+      background-color: var(--bg);
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+      /* Evita el zoom por doble toque sin bloquear el pellizco */
+      touch-action: manipulation;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      min-height: 100dvh;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+
+    /* Barra superior */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px 10px;
+      background-color: var(--panel-bg);
+      border-bottom: 1px solid var(--border-color);
+      padding: calc(8px + var(--safe-top)) calc(20px + var(--safe-right)) 8px calc(20px + var(--safe-left));
+    }
+
+    .app-header {
+      display: contents;
+    }
+
+    .brand {
+      order: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-right: auto;
+      min-width: 0;
+    }
+
+    .brand-badge {
+      display: flex;
+      gap: 3px;
+      flex-shrink: 0;
+    }
+
+    .brand-badge span {
+      width: 9px;
+      height: 18px;
+      border-radius: 2px;
+    }
+
+    .brand h1 {
+      font-size: 1.15rem;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mode-bar {
+      order: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mode-bar label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .history-controls {
+      order: 2;
+      display: flex;
+      gap: 6px;
+    }
+
+    .more-btn {
+      order: 3;
+      display: none;
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+
+    .extra-controls {
+      order: 4;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Controles comunes */
+    select, button {
+      background-color: #202531;
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 8px 12px;
+      min-height: var(--tap);
+      min-width: var(--tap);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+
+    select {
+      /* 16 px evita que iOS haga zoom al enfocar el campo */
+      font-size: 16px;
+      -webkit-appearance: none;
+      appearance: none;
+      padding-right: 36px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%238e97ab' stroke-width='2'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+    }
+
+    :focus {
+      outline: none;
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    button.active {
+      background-color: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    button.accent-action {
+      background-color: #243859;
+      border-color: var(--accent);
+      color: #93c5fd;
+    }
+
+    button.primary-action {
+      background-color: #2563eb;
+      border-color: #1d4ed8;
+      color: #fff;
+    }
+
+    .btn-icon {
+      font-size: 1.05rem;
+      line-height: 1;
+    }
+
+    @media (hover: hover) {
+      select:hover, button:hover:not(:disabled) {
+        background-color: #2a3142;
+        border-color: var(--accent);
+      }
+
+      button.active:hover:not(:disabled),
+      button.accent-action:hover:not(:disabled),
+      button.primary-action:hover:not(:disabled) {
+        background-color: var(--accent);
+        color: #fff;
+      }
+
+      .quick-swatch:hover {
+        transform: scale(1.08);
+        z-index: 3;
+      }
+    }
+
+    /* Distribución general (escritorio y tablet horizontal) */
+    main {
+      flex: 1 1 auto;
+      min-height: 540px;
+      display: grid;
+      grid-template-columns: clamp(252px, 22vw, 310px) minmax(0, 1fr) clamp(264px, 25vw, 330px);
+      grid-template-rows: minmax(0, 1fr);
+      gap: 14px;
+      padding: 14px calc(18px + var(--safe-right)) 14px calc(18px + var(--safe-left));
+    }
+
+    .panel {
+      background-color: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-color) transparent;
+    }
+
+    .panel::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .panel::-webkit-scrollbar-thumb {
+      background-color: var(--border-color);
+      border-radius: 3px;
+    }
+
+    .panel-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      container-type: inline-size;
+    }
+
+    .panel-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 1.2px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-title > span:first-child {
+      flex: 1;
+    }
+
+    .contrast-tag {
+      color: var(--accent);
+      font-size: 0.68rem;
+    }
+
+    /* Ficha teórica */
+    .exercise-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    .exercise-card strong {
+      color: #fff;
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.92rem;
+    }
+
+    .card-note {
+      margin-top: 10px;
+      font-size: 0.78rem;
+      color: #cbd5e1;
+    }
+
+    .card-note b {
+      color: #93c5fd;
+      font-weight: 600;
+    }
+
+    /* Herramientas */
+    .tools-group {
+      display: flex;
+      background-color: #111317;
+      padding: 3px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      gap: 4px;
+    }
+
+    .tool-btn {
+      flex: 1;
+      padding: 6px 4px;
+      font-size: 0.8rem;
+      background: transparent;
+      border: none;
+      border-radius: 4px;
+      color: var(--text-muted);
+    }
+
+    .tool-btn.active {
+      background-color: var(--accent);
+      color: #fff;
+    }
+
+    .size-row {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 3px;
+    }
+
+    .size-row button {
+      padding: 6px 2px;
+      min-width: 0;
+    }
+
+    @container (max-width: 234px) {
+      .size-row {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    .button-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .button-row button {
+      flex: 1;
+      padding: 6px 4px;
+    }
+
+    /* Área central del lienzo */
+    .viewport {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #101217;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px;
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+      container-type: size;
+    }
+
+    .viewport-canvas-mount {
+      --grid-size: 440px;
+      background: var(--canvas-frame);
+      box-shadow: var(--shadow-elevation);
+      border-radius: 4px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      transition: background 0.25s ease;
+    }
+
+    @supports (width: 1cqw) {
+      .viewport-canvas-mount {
+        /* Cuadrado fluido: el menor entre el ancho y el alto disponibles */
+        --grid-size: clamp(200px, min(100cqw - 48px, 100cqh - 186px), 760px);
+      }
+    }
+
+    .viewport-canvas-mount[data-tone="mid"] {
+      --frame-text: #1f2937;
+      --frame-text-soft: #1f2937;
+    }
+
+    .viewport-canvas-mount[data-tone="dark"] {
+      --frame-text: #cbd5e1;
+      --frame-text-soft: #94a3b8;
+    }
+
+    .grid-container {
+      display: grid;
+      width: var(--grid-size);
+      height: var(--grid-size);
+      background-color: #000;
+      cursor: crosshair;
+      touch-action: none;
+      -webkit-touch-callout: none;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
+    }
+
+    .grid-cell {
+      background-color: #ffffff;
+      transition: background-color 0.05s ease;
+    }
+
+    .grid-container.show-borders {
+      gap: 1.5px;
+      background-color: rgba(0, 0, 0, 0.18);
+    }
+
+    /* Gradación continua entre dos polos */
+    .blend-container {
+      width: var(--grid-size);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .blend-endpoints {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .endpoint-picker {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--frame-text);
+      font-family: monospace;
+    }
+
+    .endpoint-picker input[type="color"] {
+      -webkit-appearance: none;
+      appearance: none;
+      border: none;
+      width: var(--tap);
+      height: var(--tap);
+      padding: 0;
+      cursor: pointer;
+      background: transparent;
+      font-size: 16px;
+    }
+
+    .endpoint-picker input[type="color"]::-webkit-color-swatch-wrapper {
+      padding: 9px;
+    }
+
+    .endpoint-picker input[type="color"]::-webkit-color-swatch {
+      border: 1px solid rgba(0, 0, 0, 0.25);
+      border-radius: 50%;
+    }
+
+    .endpoint-picker input[type="color"]::-moz-color-swatch {
+      border: 1px solid rgba(0, 0, 0, 0.25);
+      border-radius: 50%;
+    }
+
+    .blend-hint {
+      flex: 1;
+      text-align: center;
+      font-size: 0.68rem;
+      line-height: 1.3;
+      color: var(--frame-text-soft);
+      font-weight: 600;
+    }
+
+    .blend-hint span {
+      display: block;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .blend-canvas-wrapper {
+      position: relative;
+      height: 36px;
+      width: 100%;
+      border-radius: 5px;
+      overflow: hidden;
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      cursor: crosshair;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+    }
+
+    #blendCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+      -webkit-touch-callout: none;
+    }
+
+    /* Panel derecho: color activo y círculo */
+    .active-color-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 12px;
+      background-color: var(--card-bg);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .color-swatch-preview {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      border: 2px solid #fff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+      flex-shrink: 0;
+    }
+
+    .color-details {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow: hidden;
+    }
+
+    .color-details-hex {
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      font-family: monospace;
+    }
+
+    .color-details-rgb {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-family: monospace;
+    }
+
+    .color-details-role {
+      font-size: 0.75rem;
+      color: #93c5fd;
+      font-weight: 600;
+    }
+
+    .harmony-row {
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .harmony-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background-color: #212838;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      color: #cbd5e1;
+      min-width: 0;
+    }
+
+    .harmony-indicator-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .wheel-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    #ittenWheelSvg {
+      width: 100%;
+      max-width: 250px;
+      height: auto;
+      aspect-ratio: 1;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .wheel-hint {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+      text-align: center;
+    }
+
+    /* Acromáticos */
+    .swatch-row {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 4px;
+    }
+
+    .quick-swatch {
+      aspect-ratio: 1;
+      min-width: 0;
+      padding: 0;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      transition: transform 0.1s ease;
+    }
+
+    .quick-swatch.active {
+      box-shadow: 0 0 0 2px #fff;
+    }
+
+    @container (max-width: 289px) {
+      .swatch-row {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .quick-swatch {
+        aspect-ratio: auto;
+      }
+    }
+
+    /* Pie */
+    footer {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 6px 16px;
+      flex-wrap: wrap;
+      padding: 0 calc(24px + var(--safe-right)) calc(6px + var(--safe-bottom)) calc(24px + var(--safe-left));
+    }
+
+    /* Aviso breve */
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(24px + var(--safe-bottom));
+      transform: translate(-50%, 12px);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 50;
+      max-width: calc(100vw - 32px);
+      padding: 10px 18px;
+      border-radius: 999px;
+      background-color: rgba(11, 18, 32, 0.94);
+      border: 1px solid var(--accent);
+      color: #fff;
+      font-size: 0.875rem;
+      text-align: center;
+      box-shadow: var(--shadow-elevation);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .toast, .grid-cell, .viewport-canvas-mount, .quick-swatch {
+        transition: none;
+      }
+    }
+
+    /* ---------- Escritorio y tablet horizontal: la app ocupa la pantalla y los paneles se desplazan por dentro ---------- */
+    @media (min-width: 1024px) {
+      body {
+        height: 100vh;
+        height: 100dvh;
+      }
+    }
+
+    /* ---------- Escritorio con ancho justo: acciones secundarias en menú ---------- */
+    @media (max-width: 1199.98px) {
+      .btn-label {
+        display: none;
+      }
+
+      .more-btn {
+        display: inline-flex;
+      }
+
+      .extra-controls {
+        display: none;
+        position: absolute;
+        top: calc(100% + 6px);
+        right: calc(12px + var(--safe-right));
+        z-index: 30;
+        flex-direction: column;
+        align-items: stretch;
+        min-width: 230px;
+        padding: 8px;
+        background-color: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        box-shadow: var(--shadow-elevation);
+      }
+
+      .extra-controls.open {
+        display: flex;
+      }
+
+      .extra-controls button {
+        justify-content: flex-start;
+      }
+    }
+
+    /* ---------- Tablet vertical (600–1023 px) ---------- */
+    @media (max-width: 1023.98px) {
+      .topbar {
+        display: contents;
+      }
+
+      .app-header {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background-color: var(--panel-bg);
+        border-bottom: 1px solid var(--border-color);
+        padding: calc(6px + var(--safe-top)) calc(12px + var(--safe-right)) 6px calc(12px + var(--safe-left));
+      }
+
+      .brand h1 {
+        font-size: 1rem;
+      }
+
+      .mode-bar {
+        order: 0;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px;
+        padding: 12px calc(12px + var(--safe-right)) 0 calc(12px + var(--safe-left));
+      }
+
+      .mode-bar label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+      }
+
+      .mode-bar select {
+        width: 100%;
+      }
+
+      main {
+        min-height: 0;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-rows: auto;
+        align-items: start;
+        gap: 12px;
+        padding: 12px calc(12px + var(--safe-right)) 16px calc(12px + var(--safe-left));
+      }
+
+      .viewport {
+        grid-column: 1 / -1;
+        order: -1;
+        container-type: inline-size;
+      }
+
+      .viewport-canvas-mount {
+        padding: 16px;
+        gap: 14px;
+      }
+
+      @supports (width: 1cqw) {
+        .viewport-canvas-mount {
+          --grid-size: clamp(240px, min(100cqw - 32px, 100dvh - 270px), 720px);
+        }
+      }
+
+      .panel {
+        overflow: visible;
+      }
+
+      #ittenWheelSvg {
+        max-width: 300px;
+      }
+
+      footer {
+        padding-left: calc(12px + var(--safe-left));
+        padding-right: calc(12px + var(--safe-right));
+      }
+    }
+
+    /* ---------- Teléfono (< 600 px): una columna y secciones plegables ---------- */
+    @media (max-width: 599.98px) {
+      .app-header {
+        gap: 4px;
+      }
+
+      .brand {
+        gap: 8px;
+      }
+
+      .brand h1 {
+        font-size: 0.88rem;
+        letter-spacing: 0.3px;
+      }
+
+      .history-controls {
+        gap: 4px;
+      }
+
+      .mode-bar {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      main {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+      }
+
+      .viewport {
+        padding: 0;
+        border: none;
+        background: none;
+      }
+
+      .viewport-canvas-mount {
+        padding: 12px;
+        gap: 12px;
+        border-radius: 8px;
+      }
+
+      @supports (width: 1cqw) {
+        .viewport-canvas-mount {
+          --grid-size: max(200px, min(100cqw - 24px, 100dvh - 190px));
+        }
+      }
+
+      /* Los paneles se disuelven y cada sección se vuelve una tarjeta plegable */
+      .panel {
+        display: contents;
+      }
+
+      .panel-section {
+        background-color: var(--panel-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 4px 14px 14px;
+      }
+
+      .panel-section.collapsed {
+        padding-bottom: 4px;
+      }
+
+      .panel-section.collapsed > :not(.panel-title) {
+        display: none;
+      }
+
+      .panel-title {
+        min-height: var(--tap);
+        cursor: pointer;
+      }
+
+      .panel-title::after {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-right: 2px solid var(--text-muted);
+        border-bottom: 2px solid var(--text-muted);
+        transform: rotate(45deg);
+        margin: 0 4px 4px 4px;
+        transition: transform 0.15s ease;
+      }
+
+      .panel-section.collapsed .panel-title::after {
+        transform: rotate(-45deg);
+        margin-bottom: 0;
+      }
+
+      #sec-ficha { order: 1; }
+      #sec-herramienta { order: 2; }
+      #sec-pincel { order: 3; }
+      #sec-circulo { order: 4; }
+      #sec-acromaticos { order: 5; }
+      #sec-reticula { order: 6; }
+      #sec-simetria { order: 7; }
+      #sec-fondo { order: 8; }
+
+      #ittenWheelSvg {
+        max-width: 320px;
+      }
+
+      footer {
+        flex-direction: column;
+        padding-top: 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Barra superior -->
+  <div class="topbar">
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-badge" aria-hidden="true">
+          <span style="background: #FFE600;"></span>
+          <span style="background: #E60000;"></span>
+          <span style="background: #0044BB;"></span>
+        </div>
+        <h1>Estudio del color</h1>
+      </div>
+
+      <div class="history-controls">
+        <button id="undoBtn" disabled title="Deshacer (Ctrl+Z)" aria-label="Deshacer">
+          <span class="btn-icon" aria-hidden="true">↺</span><span class="btn-label">Deshacer</span>
+        </button>
+        <button id="redoBtn" disabled title="Rehacer (Ctrl+Y)" aria-label="Rehacer">
+          <span class="btn-icon" aria-hidden="true">↻</span><span class="btn-label">Rehacer</span>
+        </button>
+      </div>
+
+      <button id="moreBtn" class="more-btn" aria-label="Más opciones" aria-expanded="false" aria-controls="extraControls">⋯</button>
+
+      <div class="extra-controls" id="extraControls">
+        <button id="toggleGridBtn" class="active">Cuadrícula: sí</button>
+        <button id="clearBtn">Vaciar</button>
+        <button id="exportBtn" class="primary-action">Exportar PNG</button>
+      </div>
+    </header>
+
+    <div class="mode-bar">
+      <label for="exerciseSelect">Modo:</label>
+      <select id="exerciseSelect">
+        <option value="libre">Laboratorio libre</option>
+        <option value="tono">Contraste de tono</option>
+        <option value="valor">Contraste de valor</option>
+        <option value="temperatura">Contraste de temperatura</option>
+        <option value="complementarios">Contraste de complementarios</option>
+        <option value="extensión">Contraste de extensión</option>
+        <option value="saturación">Contraste de saturación</option>
+        <option value="simultáneo">Contraste simultáneo</option>
+      </select>
+
+      <button id="loadDemoBtn" class="accent-action">✦ Cargar demostración</button>
+    </div>
+  </div>
+
+  <!-- Cuerpo principal -->
+  <main>
+    <!-- Panel izquierdo: ficha y herramientas -->
+    <aside class="panel">
+      <div class="panel-section" id="sec-ficha">
+        <div class="panel-title">
+          <span>Fundamento teórico</span>
+          <span class="contrast-tag">Itten 1961</span>
+        </div>
+        <div id="exerciseCard" class="exercise-card">
+          <strong id="cardTitle">Laboratorio libre</strong>
+          <p id="cardDesc"></p>
+          <p id="cardNote" class="card-note" hidden></p>
+        </div>
+      </div>
+
+      <div class="panel-section" id="sec-herramienta">
+        <div class="panel-title"><span>Herramienta de pintura</span></div>
+        <div class="tools-group">
+          <button class="tool-btn active" data-tool="brush">Pincel</button>
+          <button class="tool-btn" data-tool="bucket">Relleno</button>
+          <button class="tool-btn" data-tool="picker">Pipeta</button>
+        </div>
+      </div>
+
+      <div class="panel-section" id="sec-reticula">
+        <div class="panel-title"><span>Resolución modular</span></div>
+        <div class="size-row">
+          <button class="grid-size-btn" data-size="5">5×5</button>
+          <button class="grid-size-btn" data-size="6">6×6</button>
+          <button class="grid-size-btn active" data-size="7">7×7</button>
+          <button class="grid-size-btn" data-size="8">8×8</button>
+          <button class="grid-size-btn" data-size="9">9×9</button>
+        </div>
+      </div>
+
+      <div class="panel-section" id="sec-simetria">
+        <div class="panel-title"><span>Simetría constructiva</span></div>
+        <select id="symmetrySelect" aria-label="Simetría constructiva">
+          <option value="none">Sin simetría</option>
+          <option value="horizontal">Espejo horizontal</option>
+          <option value="vertical">Espejo vertical</option>
+          <option value="radial">Radial (4 cuadrantes)</option>
+        </select>
+      </div>
+
+      <div class="panel-section" id="sec-fondo">
+        <div class="panel-title"><span>Fondo del marco</span></div>
+        <div class="button-row">
+          <button class="canvas-bg-btn active" data-bg="#ffffff" data-tone="light">Blanco</button>
+          <button class="canvas-bg-btn" data-bg="#808080" data-tone="mid">Gris 50 %</button>
+          <button class="canvas-bg-btn" data-bg="#0f1115" data-tone="dark">Oscuro</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Centro: lienzo y gradación continua -->
+    <section class="viewport" aria-label="Lienzo">
+      <div class="viewport-canvas-mount" id="captureArea" data-tone="light">
+        <div id="gridContainer" class="grid-container show-borders"></div>
+
+        <div class="blend-container">
+          <div class="blend-endpoints">
+            <label class="endpoint-picker">
+              <input type="color" id="startColorPicker" value="#FFE600" aria-label="Color del polo A">
+              <span id="startColorLabel">Polo A</span>
+            </label>
+            <div class="blend-hint">
+              <span>Gradación continua</span>
+              Toca o desliza para muestrear
+            </div>
+            <label class="endpoint-picker">
+              <span id="endColorLabel">Polo B</span>
+              <input type="color" id="endColorPicker" value="#0044BB" aria-label="Color del polo B">
+            </label>
+          </div>
+          <div class="blend-canvas-wrapper" id="blendWrapper">
+            <canvas id="blendCanvas" width="440" height="36" aria-label="Gradación entre el polo A y el polo B"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Panel derecho: color activo y círculo de Itten -->
+    <aside class="panel">
+      <div class="panel-section" id="sec-pincel">
+        <div class="panel-title"><span>Pincel activo</span></div>
+        <div class="active-color-card">
+          <div id="currentColorSwatch" class="color-swatch-preview" style="background-color: #FFE600;"></div>
+          <div class="color-details">
+            <span id="currentColorHex" class="color-details-hex">#FFE600</span>
+            <span id="currentColorRgb" class="color-details-rgb">rgb(255, 230, 0)</span>
+            <span id="currentColorName" class="color-details-role">Amarillo (primario)</span>
+          </div>
+        </div>
+
+        <div class="harmony-row">
+          <div class="harmony-badge">
+            <span>Opuesto:</span>
+            <span class="harmony-indicator-dot" id="compDot" style="background-color: #660099;"></span>
+            <strong id="compName">Violeta</strong>
+          </div>
+          <button id="pickCompBtn" aria-label="Usar el color opuesto como pincel">Usar</button>
+        </div>
+      </div>
+
+      <div class="panel-section" id="sec-circulo">
+        <div class="panel-title"><span>Círculo cromático de Itten (12 tonos)</span></div>
+        <div class="wheel-container">
+          <svg id="ittenWheelSvg" viewBox="-120 -120 240 240" role="group" aria-label="Círculo cromático de Itten"></svg>
+          <div class="wheel-hint">Toca cualquier faceta para seleccionar el tono</div>
+        </div>
+      </div>
+
+      <div class="panel-section" id="sec-acromaticos">
+        <div class="panel-title"><span>Acromáticos y neutros</span></div>
+        <div class="swatch-row">
+          <button class="quick-swatch" style="background-color: #FFFFFF;" data-color="#FFFFFF" aria-label="Blanco puro"></button>
+          <button class="quick-swatch" style="background-color: #CCCCCC;" data-color="#CCCCCC" aria-label="Gris claro"></button>
+          <button class="quick-swatch" style="background-color: #808080;" data-color="#808080" aria-label="Gris medio"></button>
+          <button class="quick-swatch" style="background-color: #4D4D4D;" data-color="#4D4D4D" aria-label="Gris carbón"></button>
+          <button class="quick-swatch" style="background-color: #1A1A1A;" data-color="#1A1A1A" aria-label="Antracita"></button>
+          <button class="quick-swatch" style="background-color: #000000;" data-color="#000000" aria-label="Negro profundo"></button>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <footer>
+    <span>Estudio del color • Basado en <em>Kunst der Farbe</em> (El arte del color, 1961) de Johannes Itten.</span>
+    <span id="canvasCellsCount">Celdas activas: 49 (7×7)</span>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    /* =========================================================================
+       1. DEFINICIÓN TEÓRICA DE LOS 12 TONOS Y DE LOS CONTRASTES DE ITTEN
+       ========================================================================= */
+
+    const ITTEN_12 = [
+      { name: "Amarillo",        hex: "#FFE600", type: "primario" },
+      { name: "Amarillo-naranja", hex: "#FFAA00", type: "terciario" },
+      { name: "Naranja",         hex: "#FF6600", type: "secundario" },
+      { name: "Rojo-naranja",    hex: "#FF3300", type: "terciario" },
+      { name: "Rojo",            hex: "#E60000", type: "primario" },
+      { name: "Rojo-violeta",    hex: "#AA0066", type: "terciario" },
+      { name: "Violeta",         hex: "#660099", type: "secundario" },
+      { name: "Azul-violeta",    hex: "#330099", type: "terciario" },
+      { name: "Azul",            hex: "#0044BB", type: "primario" },
+      { name: "Azul-verde",      hex: "#008899", type: "terciario" },
+      { name: "Verde",           hex: "#009933", type: "secundario" },
+      { name: "Amarillo-verde",  hex: "#88CC00", type: "terciario" }
+    ];
+
+    // Valores de luz de Goethe (índice en ITTEN_12 → valor)
+    const GOETHE = { 0: 9, 2: 8, 4: 6, 10: 6, 8: 4, 6: 3 };
+
+    // Fichas de cada modo: título, fundamento, retícula y polos iniciales
+    const EXERCISES = {
+      "libre": {
+        title: "Laboratorio libre",
+        desc: "Compón libremente con los 12 tonos del círculo, los acromáticos y la gradación continua entre dos polos. Cada demostración muestra, al azar, uno de los siete contrastes.",
+        size: 7,
+        c1: "#FFE600",
+        c2: "#0044BB"
+      },
+      "tono": {
+        title: "Contraste de tono",
+        desc: "El contraste más elemental y contundente. Se logra yuxtaponiendo tonos puros, primarios y secundarios, en su máxima saturación. Cuanto más se alejan los tonos del amarillo, el rojo y el azul, más se debilita su fuerza.",
+        size: 5,
+        c1: "#FFE600",
+        c2: "#E60000"
+      },
+      "valor": {
+        title: "Contraste de valor",
+        desc: "Polaridad fundamental entre luz y sombra. Las gradaciones de un mismo tono, o del blanco al negro, modelan volumen, profundidad y atmósfera sin depender del matiz.",
+        size: 6,
+        c1: "#FFF275",
+        c2: "#190800"
+      },
+      "temperatura": {
+        title: "Contraste de temperatura",
+        desc: "Polaridad térmica: el rojo-naranja es el polo más cálido y el azul-verde, el más frío. Los cálidos parecen avanzar hacia el espectador y los fríos, retirarse, lo que genera profundidad.",
+        size: 7,
+        c1: "#FF3300",
+        c2: "#008899"
+      },
+      "complementarios": {
+        title: "Contraste de complementarios",
+        desc: "Dos tonos diametralmente opuestos en el círculo se exaltan mutuamente al yuxtaponerse y, mezclados en proporción equilibrada, se neutralizan en un gris. El centro de la gradación entre ambos polos muestra esa neutralización.",
+        size: 6,
+        c1: "#FF6600",
+        c2: "#0044BB"
+      },
+      "extensión": {
+        title: "Contraste de extensión",
+        desc: "Relación de áreas según la fuerza luminosa de cada color. Goethe asignó estos valores de luz: amarillo 9, naranja 8, rojo 6, verde 6, azul 4 y violeta 3. Para que dos colores se equilibren, sus áreas deben ser inversamente proporcionales a esos valores: el amarillo (9) necesita un tercio del área del violeta (3), es decir, una proporción 1:3.",
+        size: 8,
+        c1: "#FFE600",
+        c2: "#660099"
+      },
+      "saturación": {
+        title: "Contraste de saturación",
+        desc: "Oposición entre colores puros y saturados y sus versiones quebradas, apagadas o agrisadas. Basta un pequeño acento puro para hacer resonar todo un entorno neutro, y un tono apagado parece más vivo junto a otro aún más gris.",
+        size: 7,
+        c1: "#660099",
+        c2: "#808080"
+      },
+      "simultáneo": {
+        title: "Contraste simultáneo",
+        desc: "Ante un color puro, el ojo genera de forma simultánea su complementario y lo proyecta sobre las zonas neutras vecinas: un gris sobre rojo parece verdoso y, sobre verde, rojizo. El efecto crece cuando el gris tiene el mismo valor que el fondo.",
+        size: 7,
+        c1: "#E60000",
+        c2: "#808080"
+      }
+    };
+
+    const DEMO_MODES = Object.keys(EXERCISES).filter(key => key !== "libre");
+
+    /* =========================================================================
+       2. ESTADO GLOBAL DE LA APLICACIÓN
+       ========================================================================= */
+
+    let gridSize = 7;
+    let currentColor = "#FFE600";
+    let activeTool = "brush"; // "brush", "bucket", "picker"
+    let showBorders = true;
+    let gridData = [];
+    let frameBg = "#ffffff";
+    let frameTone = "light";
+
+    // Trazo en curso (pincel)
+    let isDrawing = false;
+    let strokeHistoryPending = false;
+    let lastStrokePoint = null;
+
+    // Pilas de Deshacer / Rehacer: guardan tamaño de retícula y colores
+    const undoStack = [];
+    const redoStack = [];
+    const MAX_HISTORY = 30;
+
+    // Última demostración por modo (para no repetirla) y último modo usado en el laboratorio libre
+    const lastDemoSignature = {};
+    let lastLibreMode = null;
+
+    /* =========================================================================
+       3. ELEMENTOS DEL DOM
+       ========================================================================= */
+
+    const gridContainer = document.getElementById("gridContainer");
+    const captureArea = document.getElementById("captureArea");
+    const toggleGridBtn = document.getElementById("toggleGridBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const undoBtn = document.getElementById("undoBtn");
+    const redoBtn = document.getElementById("redoBtn");
+    const loadDemoBtn = document.getElementById("loadDemoBtn");
+    const exportBtn = document.getElementById("exportBtn");
+    const moreBtn = document.getElementById("moreBtn");
+    const extraControls = document.getElementById("extraControls");
+
+    const exerciseSelect = document.getElementById("exerciseSelect");
+    const cardTitle = document.getElementById("cardTitle");
+    const cardDesc = document.getElementById("cardDesc");
+    const cardNote = document.getElementById("cardNote");
+    const symmetrySelect = document.getElementById("symmetrySelect");
+
+    const blendCanvas = document.getElementById("blendCanvas");
+    const blendWrapper = document.getElementById("blendWrapper");
+    const startColorPicker = document.getElementById("startColorPicker");
+    const endColorPicker = document.getElementById("endColorPicker");
+    const startColorLabel = document.getElementById("startColorLabel");
+    const endColorLabel = document.getElementById("endColorLabel");
+
+    const currentColorSwatch = document.getElementById("currentColorSwatch");
+    const currentColorHex = document.getElementById("currentColorHex");
+    const currentColorRgb = document.getElementById("currentColorRgb");
+    const currentColorName = document.getElementById("currentColorName");
+    const compDot = document.getElementById("compDot");
+    const compName = document.getElementById("compName");
+    const pickCompBtn = document.getElementById("pickCompBtn");
+
+    const ittenWheelSvg = document.getElementById("ittenWheelSvg");
+    const canvasCellsCount = document.getElementById("canvasCellsCount");
+    const toast = document.getElementById("toast");
+
+    /* =========================================================================
+       4. CONSTRUCCIÓN DEL CÍRCULO CROMÁTICO GEOMÉTRICO (SVG ITTEN)
+       ========================================================================= */
+
+    function addWheelFacet(tag, attrs, hex, label) {
+      const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+      Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+      el.setAttribute("fill", hex);
+      el.setAttribute("stroke", "#1c202a");
+      el.setAttribute("role", "button");
+      el.setAttribute("aria-label", label);
+      el.style.cursor = "pointer";
+      el.addEventListener("click", () => setCurrentColor(hex));
+      ittenWheelSvg.appendChild(el);
+    }
+
+    function buildIttenWheel() {
+      ittenWheelSvg.innerHTML = "";
+      // Anillo de 36 unidades de grosor: a partir de unos 250 px de ancho supera los 44 px táctiles
+      const R_OUTER = 118;
+      const R_INNER = 82;
+      const R_HEX = 74;
+
+      const angleStep = 360 / 12;
+      // El amarillo está en el cenit (arriba, −90°)
+      const baseOffset = -90 - (angleStep / 2);
+
+      ITTEN_12.forEach((col, idx) => {
+        const a1 = (baseOffset + idx * angleStep) * Math.PI / 180;
+        const a2 = (baseOffset + (idx + 1) * angleStep) * Math.PI / 180;
+        const d = [
+          `M ${R_OUTER * Math.cos(a1)} ${R_OUTER * Math.sin(a1)}`,
+          `A ${R_OUTER} ${R_OUTER} 0 0 1 ${R_OUTER * Math.cos(a2)} ${R_OUTER * Math.sin(a2)}`,
+          `L ${R_INNER * Math.cos(a2)} ${R_INNER * Math.sin(a2)}`,
+          `A ${R_INNER} ${R_INNER} 0 0 0 ${R_INNER * Math.cos(a1)} ${R_INNER * Math.sin(a1)}`,
+          "Z"
+        ].join(" ");
+        addWheelFacet("path", { d, "stroke-width": "1.5" }, col.hex, col.name);
+      });
+
+      const getCoord = deg => {
+        const rad = deg * Math.PI / 180;
+        return { x: R_HEX * Math.cos(rad), y: R_HEX * Math.sin(rad) };
+      };
+      const toPoints = pts => pts.map(p => `${p.x},${p.y}`).join(" ");
+
+      // Primarios a −90° (amarillo), 30° (rojo) y 150° (azul); secundarios entre ellos
+      const P_YEL = getCoord(-90), P_RED = getCoord(30), P_BLU = getCoord(150);
+      const P_ORA = getCoord(-30), P_VIO = getCoord(90), P_GRE = getCoord(-150);
+      const CENTER = { x: 0, y: 0 };
+
+      [
+        { pts: [P_YEL, P_ORA, P_RED], col: "#FF6600", name: "Naranja" },
+        { pts: [P_RED, P_VIO, P_BLU], col: "#660099", name: "Violeta" },
+        { pts: [P_BLU, P_GRE, P_YEL], col: "#009933", name: "Verde" },
+        { pts: [P_YEL, P_RED, CENTER], col: "#FFE600", name: "Amarillo" },
+        { pts: [P_RED, P_BLU, CENTER], col: "#E60000", name: "Rojo" },
+        { pts: [P_BLU, P_YEL, CENTER], col: "#0044BB", name: "Azul" }
+      ].forEach(f => addWheelFacet("polygon", { points: toPoints(f.pts), "stroke-width": "1.5" }, f.col, f.name));
+    }
+
+    /* =========================================================================
+       5. SISTEMA DE HISTORIAL (DESHACER / REHACER)
+       ========================================================================= */
+
+    function snapshot() {
+      return { size: gridSize, data: [...gridData] };
+    }
+
+    function restore(state) {
+      if (state.size !== gridSize) {
+        createGrid(state.size, state.data);
+      } else {
+        gridData = [...state.data];
+        renderGridFromData();
+      }
+    }
+
+    function pushHistory() {
+      undoStack.push(snapshot());
+      if (undoStack.length > MAX_HISTORY) undoStack.shift();
+      redoStack.length = 0;
+      updateHistoryButtons();
+    }
+
+    function undo() {
+      if (undoStack.length === 0) return;
+      redoStack.push(snapshot());
+      restore(undoStack.pop());
+      updateHistoryButtons();
+    }
+
+    function redo() {
+      if (redoStack.length === 0) return;
+      undoStack.push(snapshot());
+      restore(redoStack.pop());
+      updateHistoryButtons();
+    }
+
+    function updateHistoryButtons() {
+      undoBtn.disabled = undoStack.length === 0;
+      redoBtn.disabled = redoStack.length === 0;
+    }
+
+    undoBtn.addEventListener("click", undo);
+    redoBtn.addEventListener("click", redo);
+
+    window.addEventListener("keydown", e => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+        e.preventDefault();
+        if (e.shiftKey) redo();
+        else undo();
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") {
+        e.preventDefault();
+        redo();
+      } else if (e.key === "Escape") {
+        closeMoreMenu();
+      }
+    });
+
+    /* =========================================================================
+       6. GESTIÓN DE LA RETÍCULA Y PINTURA
+       ========================================================================= */
+
+    function createGrid(size, initialColors = null) {
+      gridSize = size;
+      gridContainer.innerHTML = "";
+      gridContainer.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+      gridContainer.style.gridTemplateRows = `repeat(${size}, 1fr)`;
+
+      gridData = initialColors && initialColors.length === size * size
+        ? [...initialColors]
+        : Array(size * size).fill("#FFFFFF");
+
+      for (let i = 0; i < size * size; i++) {
+        const cell = document.createElement("div");
+        cell.className = "grid-cell";
+        cell.style.backgroundColor = gridData[i];
+        gridContainer.appendChild(cell);
+      }
+
+      syncSizeButtons();
+      canvasCellsCount.textContent = `Celdas activas: ${size * size} (${size}×${size})`;
+    }
+
+    function renderGridFromData() {
+      for (let i = 0; i < gridData.length; i++) {
+        const cell = gridContainer.children[i];
+        if (cell) cell.style.backgroundColor = gridData[i];
+      }
+    }
+
+    function syncSizeButtons() {
+      document.querySelectorAll(".grid-size-btn").forEach(btn => {
+        btn.classList.toggle("active", parseInt(btn.dataset.size, 10) === gridSize);
+      });
+    }
+
+    function getSymmetricIndices(index) {
+      const x = index % gridSize;
+      const y = Math.floor(index / gridSize);
+      const symmetry = symmetrySelect.value;
+      const set = new Set([index]);
+      const symX = gridSize - 1 - x;
+      const symY = gridSize - 1 - y;
+
+      if (symmetry === "horizontal" || symmetry === "radial") set.add(y * gridSize + symX);
+      if (symmetry === "vertical" || symmetry === "radial") set.add(symY * gridSize + x);
+      if (symmetry === "radial") set.add(symY * gridSize + symX);
+
+      return Array.from(set);
+    }
+
+    function applyBrush(index, color) {
+      const targets = getSymmetricIndices(index).filter(idx => gridData[idx] !== color);
+      if (targets.length === 0) return;
+
+      // El primer cambio real de cada trazo se guarda en el historial
+      if (strokeHistoryPending) {
+        pushHistory();
+        strokeHistoryPending = false;
+      }
+
+      targets.forEach(idx => {
+        gridData[idx] = color;
+        gridContainer.children[idx].style.backgroundColor = color;
+      });
+    }
+
+    function floodFill(startIndex, targetColor, fillColor) {
+      const visited = new Uint8Array(gridSize * gridSize);
+      const queue = [startIndex];
+      visited[startIndex] = 1;
+
+      while (queue.length > 0) {
+        const curr = queue.pop();
+        gridData[curr] = fillColor;
+        gridContainer.children[curr].style.backgroundColor = fillColor;
+
+        const cx = curr % gridSize;
+        const cy = Math.floor(curr / gridSize);
+        [[cx + 1, cy], [cx - 1, cy], [cx, cy + 1], [cx, cy - 1]].forEach(([nx, ny]) => {
+          if (nx >= 0 && nx < gridSize && ny >= 0 && ny < gridSize) {
+            const nIdx = ny * gridSize + nx;
+            if (!visited[nIdx] && gridData[nIdx].toLowerCase() === targetColor.toLowerCase()) {
+              visited[nIdx] = 1;
+              queue.push(nIdx);
+            }
+          }
+        });
+      }
+    }
+
+    function handleInteraction(index) {
+      if (index < 0 || index >= gridData.length) return;
+
+      if (activeTool === "picker") {
+        setCurrentColor(gridData[index]);
+        // Volver automáticamente al pincel después de muestrear
+        setActiveTool("brush");
+        return;
+      }
+
+      if (activeTool === "bucket") {
+        if (gridData[index].toLowerCase() === currentColor.toLowerCase()) return;
+        pushHistory();
+        floodFill(index, gridData[index], currentColor);
+        return;
+      }
+
+      applyBrush(index, currentColor);
+    }
+
+    function capturePointer(el, pointerId) {
+      try {
+        el.setPointerCapture(pointerId);
+      } catch (err) {
+        // Puntero ya liberado: el trazo sigue funcionando sin captura
+      }
+    }
+
+    // Celda bajo un punto de la pantalla (calculada sobre la retícula: funciona igual con ratón, dedo o lápiz)
+    function cellIndexAt(clientX, clientY) {
+      const rect = gridContainer.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+      if (x < 0 || y < 0 || x >= rect.width || y >= rect.height) return -1;
+      const col = Math.min(gridSize - 1, Math.floor(x / rect.width * gridSize));
+      const row = Math.min(gridSize - 1, Math.floor(y / rect.height * gridSize));
+      return row * gridSize + col;
+    }
+
+    // Pinta todas las celdas que atraviesa el segmento entre dos puntos (los deslizamientos rápidos no dejan huecos)
+    function paintSegment(from, to) {
+      const rect = gridContainer.getBoundingClientRect();
+      const cellPx = rect.width / gridSize;
+      const dist = Math.hypot(to.x - from.x, to.y - from.y);
+      const steps = Math.max(1, Math.ceil(dist / (cellPx / 3)));
+      for (let s = 1; s <= steps; s++) {
+        const idx = cellIndexAt(from.x + (to.x - from.x) * s / steps, from.y + (to.y - from.y) * s / steps);
+        if (idx >= 0) applyBrush(idx, currentColor);
+      }
+    }
+
+    function endStroke() {
+      isDrawing = false;
+      strokeHistoryPending = false;
+      lastStrokePoint = null;
+    }
+
+    gridContainer.addEventListener("pointerdown", e => {
+      if (!e.isPrimary || (e.pointerType === "mouse" && e.button !== 0)) return;
+      const idx = cellIndexAt(e.clientX, e.clientY);
+      if (idx < 0) return;
+      e.preventDefault();
+
+      if (activeTool === "brush") {
+        isDrawing = true;
+        strokeHistoryPending = true;
+        lastStrokePoint = { x: e.clientX, y: e.clientY };
+        // La captura explícita envía todos los movimientos del trazo a la retícula
+        capturePointer(gridContainer, e.pointerId);
+      }
+      handleInteraction(idx);
+    });
+
+    gridContainer.addEventListener("pointermove", e => {
+      if (!isDrawing || !e.isPrimary) return;
+      const coalesced = typeof e.getCoalescedEvents === "function" ? e.getCoalescedEvents() : [];
+      const points = coalesced.length ? coalesced : [e];
+      points.forEach(p => {
+        const point = { x: p.clientX, y: p.clientY };
+        paintSegment(lastStrokePoint, point);
+        lastStrokePoint = point;
+      });
+    });
+
+    ["pointerup", "pointercancel", "lostpointercapture"].forEach(type => {
+      gridContainer.addEventListener(type, endStroke);
+    });
+
+    // Sin menú contextual ni lupa de pulsación larga sobre el lienzo
+    gridContainer.addEventListener("contextmenu", e => e.preventDefault());
+
+    /* =========================================================================
+       7. HERRAMIENTAS, TAMAÑO DE RETÍCULA Y FONDO DEL MARCO
+       ========================================================================= */
+
+    function setActiveTool(tool) {
+      activeTool = tool;
+      document.querySelectorAll(".tool-btn").forEach(b => {
+        b.classList.toggle("active", b.dataset.tool === tool);
+      });
+      gridContainer.style.cursor = tool === "picker" ? "copy" : tool === "bucket" ? "cell" : "crosshair";
+    }
+
+    document.querySelectorAll(".tool-btn").forEach(btn => {
+      btn.addEventListener("click", () => setActiveTool(btn.dataset.tool));
+    });
+
+    document.querySelectorAll(".grid-size-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        pushHistory();
+        createGrid(parseInt(btn.dataset.size, 10));
+      });
+    });
+
+    document.querySelectorAll(".canvas-bg-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".canvas-bg-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        frameBg = btn.dataset.bg;
+        frameTone = btn.dataset.tone;
+        captureArea.style.backgroundColor = frameBg;
+        captureArea.dataset.tone = frameTone;
+      });
+    });
+
+    /* =========================================================================
+       8. BARRA DE GRADACIÓN CONTINUA (POLOS A Y B)
+       ========================================================================= */
+
+    // Ajusta la resolución real del canvas a su tamaño en pantalla (incluida la densidad de píxeles)
+    function resizeBlendCanvas() {
+      const dpr = window.devicePixelRatio || 1;
+      const w = Math.max(1, Math.round(blendWrapper.clientWidth * dpr));
+      const h = Math.max(1, Math.round(blendWrapper.clientHeight * dpr));
+      if (blendCanvas.width !== w || blendCanvas.height !== h) {
+        blendCanvas.width = w;
+        blendCanvas.height = h;
+      }
+      renderBlend();
+    }
+
+    function renderBlend() {
+      const ctx = blendCanvas.getContext("2d");
+      const width = blendCanvas.width;
+      const height = blendCanvas.height;
+
+      const grad = ctx.createLinearGradient(0, 0, width, 0);
+      grad.addColorStop(0, startColorPicker.value);
+      grad.addColorStop(1, endColorPicker.value);
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, width, height);
+
+      // Línea guía en el centro exacto (punto neutralizador)
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+      ctx.lineWidth = window.devicePixelRatio || 1;
+      ctx.beginPath();
+      ctx.moveTo(width / 2, 0);
+      ctx.lineTo(width / 2, height);
+      ctx.stroke();
+    }
+
+    function setPoles(c1, c2) {
+      startColorPicker.value = c1.toLowerCase();
+      endColorPicker.value = c2.toLowerCase();
+      startColorLabel.textContent = c1.toUpperCase();
+      endColorLabel.textContent = c2.toUpperCase();
+      renderBlend();
+    }
+
+    function sampleBlend(e) {
+      const rect = blendCanvas.getBoundingClientRect();
+      const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
+      setCurrentColor(mixHex(startColorPicker.value, endColorPicker.value, x / rect.width));
+    }
+
+    let isSampling = false;
+    blendCanvas.addEventListener("pointerdown", e => {
+      if (!e.isPrimary) return;
+      e.preventDefault();
+      isSampling = true;
+      // Con la captura, el muestreo continúa aunque el dedo salga del canvas
+      capturePointer(blendCanvas, e.pointerId);
+      sampleBlend(e);
+    });
+    blendCanvas.addEventListener("pointermove", e => {
+      if (isSampling) sampleBlend(e);
+    });
+    ["pointerup", "pointercancel", "lostpointercapture"].forEach(type => {
+      blendCanvas.addEventListener(type, () => { isSampling = false; });
+    });
+    blendCanvas.addEventListener("contextmenu", e => e.preventDefault());
+
+    startColorPicker.addEventListener("input", () => {
+      renderBlend();
+      startColorLabel.textContent = startColorPicker.value.toUpperCase();
+    });
+    endColorPicker.addEventListener("input", () => {
+      renderBlend();
+      endColorLabel.textContent = endColorPicker.value.toUpperCase();
+    });
+
+    new ResizeObserver(resizeBlendCanvas).observe(blendWrapper);
+
+    /* =========================================================================
+       9. GESTIÓN E IDENTIFICACIÓN DEL COLOR ACTIVO
+       ========================================================================= */
+
+    function setCurrentColor(hex) {
+      currentColor = hex.toUpperCase();
+      currentColorSwatch.style.backgroundColor = currentColor;
+      currentColorHex.textContent = currentColor;
+
+      const rgb = hexToRgb(currentColor);
+      currentColorRgb.textContent = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+
+      const match = ITTEN_12.find(c => c.hex === currentColor);
+      currentColorName.textContent = match ? `${match.name} (${match.type})` : "Tono modulado / degradado";
+
+      const comp = getComplementary(currentColor);
+      compDot.style.backgroundColor = comp.hex;
+      compName.textContent = comp.name;
+
+      document.querySelectorAll(".quick-swatch").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.color === currentColor);
+      });
+    }
+
+    function getComplementary(hex) {
+      // En el círculo de Itten, el complementario diametral está a +6 posiciones
+      const idx = ITTEN_12.findIndex(c => c.hex === hex.toUpperCase());
+      if (idx !== -1) {
+        const comp = ITTEN_12[(idx + 6) % 12];
+        return { hex: comp.hex, name: comp.name };
+      }
+      // Fuera del círculo, inverso RGB
+      const rgb = hexToRgb(hex);
+      return { hex: rgbToHex(255 - rgb.r, 255 - rgb.g, 255 - rgb.b), name: "Inverso óptico" };
+    }
+
+    pickCompBtn.addEventListener("click", () => {
+      setCurrentColor(getComplementary(currentColor).hex);
+    });
+
+    document.querySelectorAll(".quick-swatch[data-color]").forEach(btn => {
+      btn.addEventListener("click", () => setCurrentColor(btn.dataset.color));
+    });
+
+    /* =========================================================================
+       10. GENERADORES DE DEMOSTRACIONES (reglas teóricas + azar dentro de ellas)
+       Cada generador devuelve { size, cells, c1, c2, signature, note } o null si
+       el resultado no cumple su regla (en ese caso se vuelve a generar).
+       ========================================================================= */
+
+    const GRID_SIZES = [5, 6, 7, 8, 9];
+    const PURE_IDX = [0, 2, 4, 6, 8, 10];   // primarios y secundarios
+    const WARM_IDX = [0, 1, 2, 3, 4, 5];    // de amarillo a rojo-violeta
+    const COOL_IDX = [7, 8, 9, 10];         // de azul-violeta a verde
+
+    const randInt = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+    const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+    const chance = p => Math.random() < p;
+    const hueHex = i => ITTEN_12[i].hex;
+    const hueName = i => ITTEN_12[i].name.toLowerCase();
+
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function listNames(names) {
+      return names.length > 1 ? `${names.slice(0, -1).join(", ")} y ${names[names.length - 1]}` : names[0];
+    }
+
+    function build(n, fn) {
+      const cells = [];
+      for (let y = 0; y < n; y++) {
+        for (let x = 0; x < n; x++) cells.push(fn(x, y));
+      }
+      return cells;
+    }
+
+    const usesAll = (cells, colors) => colors.every(c => cells.includes(c));
+    const share = (cells, color) => cells.filter(c => c === color).length / cells.length;
+
+    // Distancias que definen la forma de las figuras
+    const METRICS = {
+      square: (dx, dy) => Math.max(Math.abs(dx), Math.abs(dy)),
+      diamond: (dx, dy) => Math.abs(dx) + Math.abs(dy),
+      circle: (dx, dy) => Math.hypot(dx, dy)
+    };
+    const SHAPE_LABEL = { square: "cuadrado", diamond: "rombo", circle: "círculo" };
+
+    // Divide la retícula en rectángulos (composición en bloques)
+    function partition(n, target) {
+      const rects = [{ x: 0, y: 0, w: n, h: n }];
+      let guard = 0;
+      while (rects.length < target && guard++ < 200) {
+        const candidates = rects.filter(r => r.w > 1 || r.h > 1).sort((a, b) => b.w * b.h - a.w * a.h);
+        if (!candidates.length) break;
+        const r = pick(candidates.slice(0, Math.ceil(candidates.length / 2)));
+        const cutX = r.w > 1 && (r.h === 1 || (r.w >= r.h ? chance(0.7) : chance(0.3)));
+        rects.splice(rects.indexOf(r), 1);
+        if (cutX) {
+          const c = randInt(1, r.w - 1);
+          rects.push({ x: r.x, y: r.y, w: c, h: r.h }, { x: r.x + c, y: r.y, w: r.w - c, h: r.h });
+        } else {
+          const c = randInt(1, r.h - 1);
+          rects.push({ x: r.x, y: r.y, w: r.w, h: c }, { x: r.x, y: r.y + c, w: r.w, h: r.h - c });
+        }
+      }
+      const owner = new Array(n * n);
+      rects.forEach((r, k) => {
+        for (let y = r.y; y < r.y + r.h; y++) {
+          for (let x = r.x; x < r.x + r.w; x++) owner[y * n + x] = k;
+        }
+      });
+      return { rects, owner };
+    }
+
+    // Asigna colores a los bloques evitando vecinos iguales y repartiendo el uso
+    function colorRegions(n, owner, count, palette) {
+      const adj = Array.from({ length: count }, () => new Set());
+      for (let y = 0; y < n; y++) {
+        for (let x = 0; x < n; x++) {
+          const a = owner[y * n + x];
+          [[x + 1, y], [x, y + 1]].forEach(([nx, ny]) => {
+            if (nx < n && ny < n) {
+              const b = owner[ny * n + nx];
+              if (a !== b) { adj[a].add(b); adj[b].add(a); }
+            }
+          });
+        }
+      }
+      const used = new Map(palette.map(c => [c, 0]));
+      const assign = new Array(count);
+      shuffle([...Array(count).keys()]).forEach(k => {
+        const banned = new Set([...adj[k]].map(j => assign[j]));
+        const options = palette.filter(c => !banned.has(c));
+        const pool = options.length ? options : palette;
+        const minUse = Math.min(...pool.map(c => used.get(c)));
+        const color = pick(pool.filter(c => used.get(c) === minUse));
+        assign[k] = color;
+        used.set(color, used.get(color) + 1);
+      });
+      return owner.map(k => assign[k]);
+    }
+
+    // --- Contraste de tono: 3 a 5 tonos puros (primarios y secundarios) ---
+    function demoTono() {
+      const k = randInt(3, 5);
+      const hues = shuffle(PURE_IDX).slice(0, k);
+      const pal = hues.map(hueHex);
+      const layout = pick(["bloques", "franjas", "diagonales", "anillos", "cuadrantes"]);
+      let n = pick(GRID_SIZES);
+      let cells;
+      let label;
+
+      if (layout === "bloques") {
+        const { rects, owner } = partition(n, k + randInt(2, 5));
+        cells = colorRegions(n, owner, rects.length, pal);
+        label = "bloques";
+      } else if (layout === "franjas") {
+        const vertical = chance(0.5);
+        const bandOf = [];
+        for (let pos = 0, band = 0; pos < n; band++) {
+          // Franjas dobles solo si quedan módulos de sobra para que aparezcan todos los tonos
+          const w = Math.min(n - pos, n >= 2 * k ? randInt(1, 2) : 1);
+          for (let j = 0; j < w; j++) bandOf[pos + j] = band;
+          pos += w;
+        }
+        cells = build(n, (x, y) => pal[bandOf[vertical ? x : y] % k]);
+        label = vertical ? "franjas verticales" : "franjas horizontales";
+      } else if (layout === "diagonales") {
+        const w = randInt(1, 2);
+        const anti = chance(0.5);
+        cells = build(n, (x, y) => pal[Math.floor((anti ? x + (n - 1 - y) : x + y) / w) % k]);
+        label = "diagonales";
+      } else if (layout === "anillos") {
+        const metric = pick(["square", "diamond"]);
+        n = randInt(metric === "square" ? Math.max(5, 2 * k - 1) : 5, 9);
+        const c = (n - 1) / 2;
+        cells = build(n, (x, y) => pal[Math.round(METRICS[metric](x - c, y - c)) % k]);
+        label = `anillos concéntricos en ${SHAPE_LABEL[metric]}`;
+      } else {
+        // Cuatro cuadrantes separados por una cruz de otro tono
+        n = pick([5, 7, 9]);
+        const c = (n - 1) / 2;
+        const quad = k === 3 ? [0, 1, 1, 0] : k === 4 ? [0, 1, 2, 0] : shuffle([0, 1, 2, 3]);
+        cells = build(n, (x, y) => {
+          if (x === c || y === c) return pal[k - 1];
+          return pal[quad[(y < c ? 0 : 2) + (x < c ? 0 : 1)]];
+        });
+        label = "cuadrantes con cruz";
+      }
+
+      if (!usesAll(cells, pal)) return null;
+      return {
+        size: n,
+        cells,
+        c1: pal[0],
+        c2: pal[1],
+        signature: `${layout}|${[...hues].sort((a, b) => a - b)}`,
+        note: `${k} tonos puros (${listNames(hues.map(hueName))}) en ${label}.`
+      };
+    }
+
+    // --- Contraste de valor: un tono (o gris) en una escala de 4 a 7 pasos ---
+    function demoValor() {
+      const baseIdx = chance(0.25) ? -1 : randInt(0, 11);
+      const steps = randInt(4, 7);
+      const base = baseIdx < 0 ? { h: 0, s: 0 } : rgbToHsl(...Object.values(hexToRgb(hueHex(baseIdx))));
+      const scale = Array.from({ length: steps }, (_, s) => hslToHex(base.h, base.s, 0.93 - 0.83 * s / (steps - 1)));
+      const layout = pick(["degradado", "diagonal", "concéntrico", "bloques"]);
+      let n;
+      let stepAt;
+      let label;
+
+      if (layout === "degradado") {
+        n = randInt(Math.max(5, steps), 9);
+        const dir = pick(["izquierda", "derecha", "arriba", "abajo"]);
+        const tOf = {
+          izquierda: (x) => x / (n - 1),
+          derecha: (x) => 1 - x / (n - 1),
+          arriba: (x, y) => y / (n - 1),
+          abajo: (x, y) => 1 - y / (n - 1)
+        }[dir];
+        stepAt = (x, y) => Math.round(tOf(x, y) * (steps - 1));
+        label = `degradado lineal con la luz ${{ izquierda: "a la izquierda", derecha: "a la derecha", arriba: "arriba", abajo: "abajo" }[dir]}`;
+      } else if (layout === "diagonal") {
+        n = randInt(5, 9);
+        const corner = randInt(0, 3);
+        stepAt = (x, y) => {
+          const fx = corner & 1 ? n - 1 - x : x;
+          const fy = corner & 2 ? n - 1 - y : y;
+          return Math.round((fx + fy) / (2 * n - 2) * (steps - 1));
+        };
+        label = `degradado diagonal desde la esquina ${["superior izquierda", "superior derecha", "inferior izquierda", "inferior derecha"][corner]}`;
+      } else if (layout === "concéntrico") {
+        n = randInt(6, 9);
+        const metric = pick(["square", "diamond", "circle"]);
+        const lightCenter = chance(0.5);
+        const c = (n - 1) / 2;
+        const dmax = METRICS[metric](c, c);
+        stepAt = (x, y) => {
+          const t = METRICS[metric](x - c, y - c) / dmax;
+          return Math.round((lightCenter ? t : 1 - t) * (steps - 1));
+        };
+        label = `disposición concéntrica en ${SHAPE_LABEL[metric]}, con el centro ${lightCenter ? "claro" : "oscuro"}`;
+      } else {
+        n = randInt(5, 9);
+        const { rects, owner } = partition(n, steps + randInt(1, 3));
+        if (rects.length < steps) return null;
+        // Los bloques se ordenan según una dirección para que la escala siga leyéndose
+        const angle = randInt(0, 7) * Math.PI / 4;
+        const order = rects
+          .map((r, k) => ({ k, key: (r.x + r.w / 2) * Math.cos(angle) + (r.y + r.h / 2) * Math.sin(angle) }))
+          .sort((a, b) => a.key - b.key);
+        const stepOfRect = [];
+        order.forEach((o, rank) => { stepOfRect[o.k] = Math.floor(rank * steps / rects.length); });
+        stepAt = (x, y) => stepOfRect[owner[y * n + x]];
+        label = "bloques ordenados de claro a oscuro";
+      }
+
+      const cells = build(n, (x, y) => scale[stepAt(x, y)]);
+      if (!usesAll(cells, scale)) return null;
+      return {
+        size: n,
+        cells,
+        c1: scale[0],
+        c2: scale[steps - 1],
+        signature: `${layout}|${label}|${baseIdx}|${steps}`,
+        note: `Escala de ${steps} valores de ${baseIdx < 0 ? "gris" : hueName(baseIdx)}, en ${label}.`
+      };
+    }
+
+    // --- Contraste de temperatura: cálidos frente a fríos ---
+    function demoTemperatura() {
+      const family = chance(0.5);
+      const run = (arr, len) => {
+        const start = randInt(0, arr.length - len);
+        return arr.slice(start, start + len);
+      };
+      // Cada familia se ordena desde su polo extremo (rojo-naranja / azul-verde)
+      const warm = run(WARM_IDX, family ? randInt(2, 3) : 1).sort((a, b) => Math.abs(a - 3) - Math.abs(b - 3));
+      const cool = run(COOL_IDX, family ? randInt(2, 3) : 1).sort((a, b) => Math.abs(a - 9) - Math.abs(b - 9));
+      const warmIsFigure = chance(0.5);
+      const figure = pick(["centro", "mitad", "diagonal", "anillo"]);
+      const n = figure === "anillo" ? randInt(7, 9) : randInt(5, 9);
+      const c = (n - 1) / 2;
+      let regionAt; // devuelve { inFig, depth } con depth en (0, 1]: 1 = lo más alejado del borde entre zonas
+      let label;
+
+      if (figure === "centro") {
+        const metric = pick(["square", "diamond", "circle"]);
+        const dmax = METRICS[metric](c, c);
+        const r = dmax * (0.3 + Math.random() * 0.3);
+        regionAt = (x, y) => {
+          const d = METRICS[metric](x - c, y - c);
+          return d <= r ? { inFig: true, depth: 1 - d / (r + 1) } : { inFig: false, depth: (d - r) / (dmax - r) };
+        };
+        label = `${SHAPE_LABEL[metric]} central`;
+      } else if (figure === "mitad") {
+        const vertical = chance(0.5);
+        const flip = chance(0.5);
+        const cut = randInt(Math.floor(n * 0.4), Math.ceil(n * 0.6));
+        regionAt = (x, y) => {
+          let u = vertical ? x : y;
+          if (flip) u = n - 1 - u;
+          return u < cut ? { inFig: true, depth: (cut - u) / cut } : { inFig: false, depth: (u - cut + 1) / (n - cut) };
+        };
+        label = vertical ? "mitades izquierda y derecha" : "mitades superior e inferior";
+      } else if (figure === "diagonal") {
+        const anti = chance(0.5);
+        const flip = chance(0.5);
+        const edge = n - 1 - randInt(0, 1);
+        regionAt = (x, y) => {
+          let s = anti ? x + (n - 1 - y) : x + y;
+          if (flip) s = 2 * n - 2 - s;
+          return s <= edge ? { inFig: true, depth: (edge - s + 1) / (edge + 1) } : { inFig: false, depth: (s - edge) / (2 * n - 2 - edge) };
+        };
+        label = "división diagonal";
+      } else {
+        const metric = pick(["square", "diamond", "circle"]);
+        const dmax = METRICS[metric](c, c);
+        const w = randInt(1, 2);
+        const r1 = Math.max(1, Math.round(dmax * (0.25 + Math.random() * 0.25)));
+        regionAt = (x, y) => {
+          const d = Math.round(METRICS[metric](x - c, y - c));
+          if (d >= r1 && d < r1 + w) return { inFig: true, depth: 1 };
+          const gap = d < r1 ? r1 - d : d - (r1 + w) + 1;
+          return { inFig: false, depth: Math.min(1, gap / 2) };
+        };
+        label = `anillo en ${SHAPE_LABEL[metric]}`;
+      }
+
+      const figFam = warmIsFigure ? warm : cool;
+      const groundFam = warmIsFigure ? cool : warm;
+      const famColor = (fam, depth) => hueHex(fam[Math.min(fam.length - 1, Math.floor((1 - depth) * fam.length))]);
+      const cells = build(n, (x, y) => {
+        const { inFig, depth } = regionAt(x, y);
+        return famColor(inFig ? figFam : groundFam, depth);
+      });
+
+      const figShare = figFam.reduce((s, i) => s + share(cells, hueHex(i)), 0);
+      if (figShare < 0.12 || figShare > 0.88) return null;
+      if (!usesAll(cells, [...warm, ...cool].map(hueHex))) return null;
+
+      const warmNames = listNames(warm.map(hueName));
+      const coolNames = listNames(cool.map(hueName));
+      return {
+        size: n,
+        cells,
+        c1: hueHex(warm[0]),
+        c2: hueHex(cool[0]),
+        signature: `${figure}|${[...warm, ...cool].sort((a, b) => a - b)}`,
+        note: `${family ? "Familias" : "Par"}: ${warmNames} (${warm.length > 1 ? "cálidos" : "cálido"}) frente a ${coolNames} (${cool.length > 1 ? "fríos" : "frío"}). Figura: ${label}, con ${warmIsFigure ? "los cálidos" : "los fríos"} como figura.`
+      };
+    }
+
+    // --- Contraste de complementarios: uno de los 6 pares diametrales ---
+    function demoComplementarios() {
+      const i = randInt(0, 5);
+      const [ia, ib] = shuffle([i, i + 6]);
+      const A = hueHex(ia);
+      const B = hueHex(ib);
+      const layout = pick(["tablero", "rayas", "bloques", "figura"]);
+      const n = pick(GRID_SIZES);
+      let cells;
+      let label;
+      let variant;
+
+      if (layout === "tablero") {
+        const block = n >= 6 && chance(0.5) ? 2 : 1;
+        cells = build(n, (x, y) => (Math.floor(x / block) + Math.floor(y / block)) % 2 ? B : A);
+        variant = String(block);
+        label = block === 2 ? "tablero de módulos dobles" : "tablero";
+      } else if (layout === "rayas") {
+        variant = pick(["horizontales", "verticales", "diagonales"]);
+        // Las rayas diagonales de un módulo serían un tablero: en diagonal se usan rayas dobles
+        const w = variant === "diagonales" ? 2 : randInt(1, 2);
+        const uOf = { horizontales: (x, y) => y, verticales: x => x, diagonales: (x, y) => x + y }[variant];
+        cells = build(n, (x, y) => Math.floor(uOf(x, y) / w) % 2 ? B : A);
+        label = `rayas ${variant}`;
+      } else if (layout === "bloques") {
+        const { rects, owner } = partition(n, randInt(4, 8));
+        cells = colorRegions(n, owner, rects.length, [A, B]);
+        variant = "";
+        label = "bloques";
+      } else {
+        variant = pick(["square", "diamond", "circle", "cross"]);
+        const c = (n - 1) / 2;
+        if (variant === "cross") {
+          const arm = n >= 7 && chance(0.5) ? 1 : 0.5;
+          cells = build(n, (x, y) => Math.abs(x - c) <= arm || Math.abs(y - c) <= arm ? A : B);
+          label = "cruz central";
+        } else {
+          const dmax = METRICS[variant](c, c);
+          const r = dmax * (0.35 + Math.random() * 0.25);
+          cells = build(n, (x, y) => METRICS[variant](x - c, y - c) <= r ? A : B);
+          label = `${SHAPE_LABEL[variant]} central`;
+        }
+      }
+
+      const shareA = share(cells, A);
+      if (shareA < 0.2 || shareA > 0.8) return null;
+      return {
+        size: n,
+        cells,
+        c1: A,
+        c2: B,
+        signature: `${layout}|${variant}|${Math.min(ia, ib)}`,
+        note: `${ITTEN_12[ia].name} y ${hueName(ib)}, opuestos en el círculo, en ${label}.`
+      };
+    }
+
+    // --- Contraste de extensión: áreas inversamente proporcionales a la luz de Goethe ---
+    // Solo se usan los pares cuya proporción cuadra exactamente en alguna retícula de 5×5 a 9×9
+    const gcd = (a, b) => b ? gcd(b, a % b) : a;
+    const EXTENSION_PAIRS = (() => {
+      const ids = Object.keys(GOETHE).map(Number);
+      const pairs = [];
+      ids.forEach((a, ai) => ids.slice(ai + 1).forEach(b => {
+        const va = GOETHE[a];
+        const vb = GOETHE[b];
+        if (va === vb) return;
+        const sizes = GRID_SIZES.filter(n => (n * n * vb) % (va + vb) === 0);
+        if (sizes.length) pairs.push({ a, b, sizes });
+      }));
+      return pairs;
+    })();
+
+    function demoExtensión() {
+      const pair = pick(EXTENSION_PAIRS);
+      const n = pick(pair.sizes);
+      const [bright, dark] = GOETHE[pair.a] > GOETHE[pair.b] ? [pair.a, pair.b] : [pair.b, pair.a];
+      const vBright = GOETHE[bright];
+      const vDark = GOETHE[dark];
+      const total = n * n;
+      // Área de cada color ∝ 1 / luz  →  celdas del color luminoso = total · vOscuro / (vLuminoso + vOscuro)
+      const brightCells = total * vDark / (vBright + vDark);
+
+      const figure = pick(["centro", "esquina", "franja", "diagonal"]);
+      const angle0 = Math.random() * Math.PI * 2;
+      const angleKey = (dx, dy) => (Math.atan2(dy, dx) - angle0 + Math.PI * 4) % (Math.PI * 2);
+      let keyOf;
+      let label;
+
+      if (figure === "centro") {
+        const metric = pick(["square", "diamond", "circle"]);
+        const cx = (n - 1) / 2 + (chance(0.5) ? randInt(-1, 1) : 0);
+        const cy = (n - 1) / 2 + (chance(0.5) ? randInt(-1, 1) : 0);
+        keyOf = (x, y) => [METRICS[metric](x - cx, y - cy), angleKey(x - cx, y - cy)];
+        label = `${SHAPE_LABEL[metric]} ${cx === (n - 1) / 2 && cy === (n - 1) / 2 ? "central" : "desplazado"}`;
+      } else if (figure === "esquina") {
+        const corner = randInt(0, 3);
+        const metric = pick(["square", "circle"]);
+        const cx = corner & 1 ? n - 1 : 0;
+        const cy = corner & 2 ? n - 1 : 0;
+        keyOf = (x, y) => [METRICS[metric](x - cx, y - cy), Math.abs(Math.abs(x - cx) - Math.abs(y - cy))];
+        label = "figura en una esquina";
+      } else if (figure === "franja") {
+        const side = randInt(0, 3);
+        const c = (n - 1) / 2;
+        keyOf = (x, y) => {
+          const across = [y, n - 1 - y, x, n - 1 - x][side];
+          const along = side < 2 ? x : y;
+          return [across, Math.abs(along - c)];
+        };
+        label = `franja ${["superior", "inferior", "izquierda", "derecha"][side]}`;
+      } else {
+        const corner = randInt(0, 3);
+        keyOf = (x, y) => {
+          const fx = corner & 1 ? n - 1 - x : x;
+          const fy = corner & 2 ? n - 1 - y : y;
+          return [fx + fy, Math.abs(fx - fy)];
+        };
+        label = "triángulo en diagonal";
+      }
+
+      const order = build(n, (x, y) => ({ idx: y * n + x, key: keyOf(x, y) }))
+        .sort((p, q) => p.key[0] - q.key[0] || p.key[1] - q.key[1]);
+      const cells = Array(total).fill(hueHex(dark));
+      order.slice(0, brightCells).forEach(p => { cells[p.idx] = hueHex(bright); });
+
+      const g = gcd(vDark, vBright);
+      return {
+        size: n,
+        cells,
+        c1: hueHex(bright),
+        c2: hueHex(dark),
+        signature: `${figure}|${Math.min(bright, dark)}-${Math.max(bright, dark)}`,
+        note: `${brightCells} celdas de ${hueName(bright)} (luz ${vBright}) frente a ${total - brightCells} de ${hueName(dark)} (luz ${vDark}): proporción ${vDark / g}:${vBright / g}, en ${label}.`
+      };
+    }
+
+    // --- Contraste de saturación: acento puro rodeado de versiones agrisadas ---
+    function demoSaturación() {
+      const hueIdx = randInt(0, 11);
+      const pure = hueHex(hueIdx);
+      const gray = grayOfSameValue(pure);
+      const levels = randInt(3, 5);
+      const ramp = [pure];
+      for (let s = 1; s <= levels; s++) ramp.push(mixHex(pure, gray, 0.3 + 0.62 * (s - 1) / (levels - 1)));
+
+      const n = randInt(5, 9);
+      const shape = pick(n >= 7 ? ["punto", "barra", "cruz"] : ["punto", "barra"]);
+      const centered = n % 2 === 1 && chance(0.5);
+      const px = centered ? (n - 1) / 2 : randInt(1, n - 2);
+      const py = centered ? (n - 1) / 2 : randInt(1, n - 2);
+      const horizontal = chance(0.5);
+      const accent = [[px, py]];
+      if (shape === "barra") accent.push(horizontal ? [px - 1, py] : [px, py - 1], horizontal ? [px + 1, py] : [px, py + 1]);
+      if (shape === "cruz") accent.push([px - 1, py], [px + 1, py], [px, py - 1], [px, py + 1]);
+
+      const metric = pick(["square", "diamond", "circle"]);
+      const dist = build(n, (x, y) => Math.min(...accent.map(([ax, ay]) => METRICS[metric](x - ax, y - ay))));
+      const positive = dist.filter(d => d > 0);
+      const dmin = Math.min(...positive);
+      const dmax = Math.max(...positive);
+      const cells = dist.map(d => d === 0 ? pure : ramp[Math.min(levels, 1 + Math.floor((d - dmin) / (dmax - dmin + 1e-9) * levels))]);
+
+      if (!usesAll(cells, ramp) || accent.length / cells.length > 0.11) return null;
+      const shapeLabel = { punto: "un módulo", barra: horizontal ? "una barra horizontal" : "una barra vertical", cruz: "una pequeña cruz" }[shape];
+      return {
+        size: n,
+        cells,
+        c1: pure,
+        c2: gray,
+        signature: `${hueIdx}|${shape}|${metric}|${centered}`,
+        note: `Acento de ${hueName(hueIdx)} puro (${shapeLabel}${centered ? " en el centro" : ""}) rodeado de ${levels} grados cada vez más agrisados, mezclados con un gris de su mismo valor.`
+      };
+    }
+
+    // --- Contraste simultáneo: gris neutro sobre fondo puro (o el mismo gris sobre dos fondos) ---
+    function demoSimultáneo() {
+      if (chance(0.6)) {
+        const bgIdx = randInt(0, 11);
+        const bg = hueHex(bgIdx);
+        const gray = grayOfSameValue(bg);
+        const n = randInt(5, 9);
+        const maxSide = Math.floor((n - 1) / 2);
+        const shape = pick(n >= 7 ? ["cuadrado", "rectángulo", "cruz"] : ["cuadrado", "rectángulo"]);
+        let w, h;
+        if (shape === "cuadrado") {
+          w = h = randInt(1, maxSide);
+        } else if (shape === "rectángulo") {
+          w = randInt(1, maxSide + 1);
+          h = randInt(1, maxSide + 1);
+          if (w === h) return null;
+        } else {
+          w = h = 3;
+        }
+        // Siempre queda al menos un módulo de fondo alrededor del gris
+        const x0 = randInt(1, n - 1 - w);
+        const y0 = randInt(1, n - 1 - h);
+        const cells = build(n, (x, y) => {
+          const inside = x >= x0 && x < x0 + w && y >= y0 && y < y0 + h;
+          if (!inside) return bg;
+          if (shape === "cruz") return x === x0 + 1 || y === y0 + 1 ? gray : bg;
+          return gray;
+        });
+        return {
+          size: n,
+          cells,
+          c1: bg,
+          c2: gray,
+          signature: `uno|${bgIdx}|${shape}`,
+          note: `Gris de igual valor sobre ${hueName(bgIdx)}: el gris tiende a teñirse de ${hueName((bgIdx + 6) % 12)}, su complementario.`
+        };
+      }
+
+      const n = pick([6, 8]);
+      const half = n / 2;
+      const i = randInt(0, 11);
+      const j = (i + pick([4, 5, 6, 7, 8])) % 12;
+      const [bgA, bgB] = [hueHex(i), hueHex(j)];
+      const gray = "#808080";
+      const vertical = chance(0.5); // true: fondos a izquierda y derecha
+      const w = randInt(1, half - 2);
+      const h = randInt(1, Math.min(3, n - 2));
+      const a0 = randInt(1, half - 1 - w);
+      const b0 = randInt(1, n - 1 - h);
+      const cells = build(n, (x, y) => {
+        const across = vertical ? x : y;
+        const along = vertical ? y : x;
+        const local = across % half;
+        const inGray = local >= a0 && local < a0 + w && along >= b0 && along < b0 + h;
+        if (inGray) return gray;
+        return across < half ? bgA : bgB;
+      });
+      return {
+        size: n,
+        cells,
+        c1: bgA,
+        c2: bgB,
+        signature: `dos|${Math.min(i, j)}-${Math.max(i, j)}|${vertical}`,
+        note: `El mismo gris neutro sobre ${hueName(i)} y sobre ${hueName(j)}: en cada fondo parece un gris distinto.`
+      };
+    }
+
+    const DEMO_GENERATORS = {
+      "tono": demoTono,
+      "valor": demoValor,
+      "temperatura": demoTemperatura,
+      "complementarios": demoComplementarios,
+      "extensión": demoExtensión,
+      "saturación": demoSaturación,
+      "simultáneo": demoSimultáneo
+    };
+
+    // Genera una demostración válida y distinta de la anterior del mismo modo
+    function generateDemo(mode) {
+      const generator = DEMO_GENERATORS[mode];
+      let fallback = null;
+      for (let attempt = 0; attempt < 200; attempt++) {
+        const demo = generator();
+        if (!demo) continue;
+        fallback = fallback || demo;
+        if (demo.signature !== lastDemoSignature[mode]) {
+          lastDemoSignature[mode] = demo.signature;
+          return demo;
+        }
+      }
+      return fallback;
+    }
+
+    /* =========================================================================
+       11. SELECTOR DE MODO Y DEMOSTRACIONES
+       ========================================================================= */
+
+    function setCardNote(html) {
+      cardNote.innerHTML = html || "";
+      cardNote.hidden = !html;
+    }
+
+    function loadExercise(key) {
+      const ex = EXERCISES[key];
+      if (!ex) return;
+
+      cardTitle.textContent = ex.title;
+      cardDesc.textContent = ex.desc;
+      setCardNote("");
+      setPoles(ex.c1, ex.c2);
+      setCurrentColor(ex.c1);
+
+      pushHistory();
+      createGrid(ex.size);
+    }
+
+    function applyDemo(demo) {
+      pushHistory();
+      createGrid(demo.size, demo.cells);
+      setPoles(demo.c1, demo.c2);
+      setCurrentColor(demo.c1);
+    }
+
+    exerciseSelect.addEventListener("change", e => loadExercise(e.target.value));
+
+    loadDemoBtn.addEventListener("click", () => {
+      const key = exerciseSelect.value;
+      if (key === "libre") {
+        // En el laboratorio libre se elige al azar un modo distinto del anterior
+        const mode = pick(DEMO_MODES.filter(m => m !== lastLibreMode));
+        lastLibreMode = mode;
+        const demo = generateDemo(mode);
+        applyDemo(demo);
+        setCardNote(`<b>Demostración: ${EXERCISES[mode].title}.</b> ${demo.note}`);
+        showToast(`Demostración: ${EXERCISES[mode].title}`);
+      } else {
+        const demo = generateDemo(key);
+        applyDemo(demo);
+        setCardNote(`<b>Demostración actual.</b> ${demo.note}`);
+      }
+    });
+
+    let toastTimer = null;
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 2600);
+    }
+
+    /* =========================================================================
+       12. MENÚ DE ACCIONES, SECCIONES PLEGABLES Y EXPORTACIÓN PNG
+       ========================================================================= */
+
+    function closeMoreMenu() {
+      extraControls.classList.remove("open");
+      moreBtn.setAttribute("aria-expanded", "false");
+    }
+
+    moreBtn.addEventListener("click", e => {
+      e.stopPropagation();
+      const open = extraControls.classList.toggle("open");
+      moreBtn.setAttribute("aria-expanded", String(open));
+    });
+
+    document.addEventListener("click", e => {
+      if (!extraControls.contains(e.target)) closeMoreMenu();
+    });
+
+    // En el teléfono, cada sección de los paneles se pliega tocando su título
+    const phoneQuery = window.matchMedia("(max-width: 599.98px)");
+    const panelSections = document.querySelectorAll(".panel-section");
+    ["sec-simetria", "sec-fondo"].forEach(id => document.getElementById(id).classList.add("collapsed"));
+
+    function syncSectionToggles() {
+      panelSections.forEach(sec => {
+        const title = sec.querySelector(".panel-title");
+        if (phoneQuery.matches) {
+          title.setAttribute("role", "button");
+          title.tabIndex = 0;
+          title.setAttribute("aria-expanded", String(!sec.classList.contains("collapsed")));
+        } else {
+          title.removeAttribute("role");
+          title.removeAttribute("tabindex");
+          title.removeAttribute("aria-expanded");
+        }
+      });
+    }
+
+    panelSections.forEach(sec => {
+      const title = sec.querySelector(".panel-title");
+      const toggle = () => {
+        if (!phoneQuery.matches) return;
+        sec.classList.toggle("collapsed");
+        syncSectionToggles();
+      };
+      title.addEventListener("click", toggle);
+      title.addEventListener("keydown", e => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          toggle();
+        }
+      });
+    });
+    phoneQuery.addEventListener("change", syncSectionToggles);
+
+    toggleGridBtn.addEventListener("click", () => {
+      showBorders = !showBorders;
+      gridContainer.classList.toggle("show-borders", showBorders);
+      toggleGridBtn.textContent = showBorders ? "Cuadrícula: sí" : "Cuadrícula: no";
+      toggleGridBtn.classList.toggle("active", showBorders);
+    });
+
+    clearBtn.addEventListener("click", () => {
+      closeMoreMenu();
+      pushHistory();
+      createGrid(gridSize);
+    });
+
+    exportBtn.addEventListener("click", () => {
+      closeMoreMenu();
+      exportPng();
+    });
+
+    function exportPng() {
+      const exportSize = 1000;
+      const margin = 60;
+      const cellSize = (exportSize - margin * 2) / gridSize;
+
+      const canvas = document.createElement("canvas");
+      canvas.width = exportSize;
+      canvas.height = exportSize + 130; // Espacio para la cartela inferior
+      const ctx = canvas.getContext("2d");
+
+      ctx.fillStyle = frameBg;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < gridData.length; i++) {
+        const x = margin + (i % gridSize) * cellSize;
+        const y = margin + Math.floor(i / gridSize) * cellSize;
+        ctx.fillStyle = gridData[i];
+        ctx.fillRect(x, y, cellSize, cellSize);
+        if (showBorders) {
+          ctx.strokeStyle = "rgba(0, 0, 0, 0.15)";
+          ctx.lineWidth = 2;
+          ctx.strokeRect(x, y, cellSize, cellSize);
+        }
+      }
+
+      // Cartela
+      const exName = EXERCISES[exerciseSelect.value].title;
+      const darkFrame = frameTone === "dark";
+      const font = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+      ctx.fillStyle = darkFrame ? "#f0f2f5" : "#111827";
+      ctx.font = `bold 24px ${font}`;
+      ctx.fillText("ESTUDIO DEL COLOR", margin, exportSize + 28);
+      ctx.font = `18px ${font}`;
+      ctx.fillStyle = darkFrame ? "#cbd5e1" : "#1f2937";
+      ctx.fillText(`${exName} — Retícula ${gridSize}×${gridSize}`, margin, exportSize + 60);
+      ctx.font = `15px ${font}`;
+      ctx.fillStyle = darkFrame ? "#94a3b8" : frameTone === "mid" ? "#1f2937" : "#64748b";
+      ctx.fillText("Según Johannes Itten, Kunst der Farbe (El arte del color, 1961)", margin, exportSize + 88);
+
+      const slug = exName.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, "_");
+      savePng(canvas.toDataURL("image/png"), `Estudio_del_color_${slug}_${Date.now()}.png`);
+    }
+
+    function dataUrlToBlob(dataUrl) {
+      const binary = atob(dataUrl.split(",")[1]);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      return new Blob([bytes], { type: "image/png" });
+    }
+
+    function savePng(dataUrl, fileName) {
+      const blob = dataUrlToBlob(dataUrl);
+      // En pantallas táctiles (iOS/Android) se usa la hoja de compartir: permite guardar en Fotos o Archivos
+      if (window.matchMedia("(pointer: coarse)").matches && navigator.canShare) {
+        const file = new File([blob], fileName, { type: "image/png" });
+        if (navigator.canShare({ files: [file] })) {
+          navigator.share({ files: [file], title: "Estudio del color" }).catch(err => {
+            if (err.name !== "AbortError") downloadBlob(blob, fileName);
+          });
+          return;
+        }
+      }
+      downloadBlob(blob, fileName);
+    }
+
+    function downloadBlob(blob, fileName) {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      // iOS en modo app (pantalla de inicio) ignora las descargas: se abre la imagen en una pestaña
+      if (!("download" in link) || navigator.standalone) {
+        window.open(url, "_blank");
+      } else {
+        link.download = fileName;
+        link.href = url;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      }
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    }
+
+    /* =========================================================================
+       13. CONVERSIONES COLORIMÉTRICAS (HEX, RGB, HSL) Y MEZCLAS
+       ========================================================================= */
+
+    function hexToRgb(hex) {
+      let c = hex.replace("#", "");
+      if (c.length === 3) c = c.split("").map(ch => ch + ch).join("");
+      const num = parseInt(c, 16);
+      return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+    }
+
+    function rgbToHex(r, g, b) {
+      return ("#" + [r, g, b].map(x => x.toString(16).padStart(2, "0")).join("")).toUpperCase();
+    }
+
+    function rgbToHsl(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h = 0, s = 0;
+      const l = (max + min) / 2;
+      if (max !== min) {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+        }
+        h *= 60;
+      }
+      return { h, s, l };
+    }
+
+    function hslToHex(h, s, l) {
+      const k = n => (n + h / 30) % 12;
+      const a = s * Math.min(l, 1 - l);
+      const f = n => Math.round(255 * (l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)))));
+      return rgbToHex(f(0), f(8), f(4));
+    }
+
+    function mixHex(a, b, t) {
+      const A = hexToRgb(a);
+      const B = hexToRgb(b);
+      return rgbToHex(
+        Math.round(A.r + (B.r - A.r) * t),
+        Math.round(A.g + (B.g - A.g) * t),
+        Math.round(A.b + (B.b - A.b) * t)
+      );
+    }
+
+    // Gris con la misma luminosidad percibida que el color dado
+    function grayOfSameValue(hex) {
+      const { r, g, b } = hexToRgb(hex);
+      const v = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+      return rgbToHex(v, v, v);
+    }
+
+    /* =========================================================================
+       14. INICIALIZACIÓN
+       ========================================================================= */
+
+    buildIttenWheel();
+    cardDesc.textContent = EXERCISES.libre.desc;
+    createGrid(gridSize);
+    resizeBlendCanvas();
+    setCurrentColor(currentColor);
+    updateHistoryButtons();
+    syncSectionToggles();
+
+    // Funcionamiento sin conexión: el service worker solo se registra en http(s) o localhost
+    if ("serviceWorker" in navigator && window.isSecureContext && location.protocol !== "file:") {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("service-worker.js").catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
