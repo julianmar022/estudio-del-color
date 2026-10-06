@@ -2920,11 +2920,49 @@
       const exportSize = 1000;
       const margin = 60;
       const cellSize = (exportSize - margin * 2) / gridSize;
+      const exName = EXERCISES[exerciseSelect.value].title;
+      const darkFrame = frameTone === "dark";
+      const font = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+      const textColor = darkFrame ? "#cbd5e1" : "#1f2937";
+
+      // Cartela de texto (a la izquierda)
+      const lines = [
+        { text: "ESTUDIO DEL COLOR", font: `bold 24px ${font}`, y: 28, color: darkFrame ? "#f0f2f5" : "#111827" },
+        { text: `${exName} — Retícula ${gridSize}×${gridSize}`, font: `18px ${font}`, y: 60, color: textColor },
+        { text: "Según Johannes Itten, Kunst der Farbe (El arte del color, 1961)", font: `15px ${font}`, y: 88,
+          color: darkFrame ? "#94a3b8" : frameTone === "mid" ? "#1f2937" : "#64748b" }
+      ];
 
       const canvas = document.createElement("canvas");
       canvas.width = exportSize;
-      canvas.height = exportSize + 130; // Espacio para la cartela inferior
       const ctx = canvas.getContext("2d");
+      const textRight = margin + Math.max(...lines.map(line => {
+        ctx.font = line.font;
+        return ctx.measureText(line.text).width;
+      }));
+
+      // Paleta de la cuadrícula (a la derecha): colores usados, del más al menos frecuente
+      const counts = new Map();
+      gridData.forEach(c => {
+        const hex = c.toUpperCase();
+        counts.set(hex, (counts.get(hex) || 0) + 1);
+      });
+      const palette = [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([hex]) => hex);
+      const SWATCH = 44;
+      const CELL_W = 68;
+      const CELL_H = 74;
+      const palRight = exportSize - margin;
+      // Al lado del texto si cabe en dos filas; si no, debajo del texto y a todo el ancho
+      const sideCols = Math.max(1, Math.floor((palRight - textRight - 40 + CELL_W - SWATCH) / CELL_W));
+      const beside = Math.ceil(palette.length / sideCols) <= 2;
+      const cols = beside
+        ? Math.min(palette.length, sideCols)
+        : Math.floor((palRight - margin + CELL_W - SWATCH) / CELL_W);
+      const rows = Math.ceil(palette.length / cols);
+      const palTop = beside ? exportSize + 8 : exportSize + 112;
+
+      // La imagen crece hacia abajo si la paleta necesita más filas
+      canvas.height = Math.max(exportSize + 130, palTop + rows * CELL_H + 24);
 
       ctx.fillStyle = frameBg;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -2941,19 +2979,28 @@
         }
       }
 
-      // Cartela
-      const exName = EXERCISES[exerciseSelect.value].title;
-      const darkFrame = frameTone === "dark";
-      const font = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
-      ctx.fillStyle = darkFrame ? "#f0f2f5" : "#111827";
-      ctx.font = `bold 24px ${font}`;
-      ctx.fillText("ESTUDIO DEL COLOR", margin, exportSize + 28);
-      ctx.font = `18px ${font}`;
-      ctx.fillStyle = darkFrame ? "#cbd5e1" : "#1f2937";
-      ctx.fillText(`${exName} — Retícula ${gridSize}×${gridSize}`, margin, exportSize + 60);
-      ctx.font = `15px ${font}`;
-      ctx.fillStyle = darkFrame ? "#94a3b8" : frameTone === "mid" ? "#1f2937" : "#64748b";
-      ctx.fillText("Según Johannes Itten, Kunst der Farbe (El arte del color, 1961)", margin, exportSize + 88);
+      lines.forEach(line => {
+        ctx.font = line.font;
+        ctx.fillStyle = line.color;
+        ctx.fillText(line.text, margin, exportSize + line.y);
+      });
+
+      ctx.textAlign = "center";
+      ctx.font = "600 13px ui-monospace, Menlo, Consolas, monospace";
+      palette.forEach((hex, i) => {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        const x = beside ? palRight - SWATCH - (cols - 1 - col) * CELL_W : margin + col * CELL_W;
+        const y = palTop + row * CELL_H;
+        ctx.fillStyle = hex;
+        ctx.fillRect(x, y, SWATCH, SWATCH);
+        ctx.strokeStyle = darkFrame ? "rgba(255, 255, 255, 0.25)" : "rgba(0, 0, 0, 0.18)";
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(x, y, SWATCH, SWATCH);
+        ctx.fillStyle = textColor;
+        ctx.fillText(hex, x + SWATCH / 2, y + SWATCH + 17);
+      });
+      ctx.textAlign = "left";
 
       const slug = exName.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, "_");
       savePng(canvas.toDataURL("image/png"), `Estudio_del_color_${slug}_${Date.now()}.png`);
