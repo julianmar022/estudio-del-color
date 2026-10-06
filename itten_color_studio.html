@@ -418,7 +418,7 @@
     @supports (width: 1cqw) {
       .viewport-canvas-mount {
         /* Cuadrado fluido: el menor entre el ancho y el alto disponibles */
-        --grid-size: clamp(200px, min(100cqw - 48px, 100cqh - 186px), 760px);
+        --grid-size: clamp(200px, min(100cqw - 48px, 100cqh - 214px), 760px);
       }
     }
 
@@ -468,44 +468,81 @@
       gap: 8px;
     }
 
-    .endpoint-picker {
-      display: flex;
-      align-items: center;
-      gap: 4px;
+    /* Polos A y B y color activo junto a la gradación */
+    .pole-btn,
+    .brush-chip {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--frame-text);
       font-size: 0.75rem;
       font-weight: 600;
-      color: var(--frame-text);
+      padding: 0 6px;
+      gap: 6px;
+    }
+
+    .pole-btn {
+      min-width: 0;
+      padding: 0 2px;
+    }
+
+    .pole-swatch {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 0, 0, 0.25);
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9), 0 1px 4px rgba(0, 0, 0, 0.25);
+      flex-shrink: 0;
+    }
+
+    .brush-chip {
+      border-color: rgba(0, 0, 0, 0.12);
+      background-color: rgba(0, 0, 0, 0.04);
+      border-radius: 999px;
+      padding: 0 12px 0 6px;
+    }
+
+    .viewport-canvas-mount[data-tone="dark"] .brush-chip {
+      border-color: rgba(255, 255, 255, 0.18);
+      background-color: rgba(255, 255, 255, 0.06);
+    }
+
+    .brush-chip-swatch {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.25);
+      flex-shrink: 0;
+    }
+
+    .brush-chip-text {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      line-height: 1.15;
+    }
+
+    .brush-chip-text span {
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--frame-text-soft);
+    }
+
+    .brush-chip-text b {
       font-family: monospace;
+      font-size: 0.85rem;
     }
 
-    .endpoint-picker input[type="color"] {
-      -webkit-appearance: none;
-      appearance: none;
-      border: none;
-      width: var(--tap);
-      height: var(--tap);
-      padding: 0;
-      cursor: pointer;
-      background: transparent;
-      font-size: 16px;
-    }
-
-    .endpoint-picker input[type="color"]::-webkit-color-swatch-wrapper {
-      padding: 9px;
-    }
-
-    .endpoint-picker input[type="color"]::-webkit-color-swatch {
-      border: 1px solid rgba(0, 0, 0, 0.25);
-      border-radius: 50%;
-    }
-
-    .endpoint-picker input[type="color"]::-moz-color-swatch {
-      border: 1px solid rgba(0, 0, 0, 0.25);
-      border-radius: 50%;
+    @media (hover: hover) {
+      .pole-btn:hover:not(:disabled),
+      .brush-chip:hover:not(:disabled) {
+        background-color: rgba(0, 0, 0, 0.06);
+        border-color: rgba(0, 0, 0, 0.18);
+      }
     }
 
     .blend-hint {
-      flex: 1;
       text-align: center;
       font-size: 0.68rem;
       line-height: 1.3;
@@ -513,10 +550,54 @@
       font-weight: 600;
     }
 
-    .blend-hint span {
-      display: block;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+    .blend-marker {
+      position: absolute;
+      top: 2px;
+      bottom: 2px;
+      width: 10px;
+      transform: translateX(-50%);
+      border: 2px solid #fff;
+      border-radius: 4px;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.55);
+      pointer-events: none;
+    }
+
+    /* Lupa que sigue al dedo al elegir un color */
+    .loupe {
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 60;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transform: translate(-50%, -100%);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.1s ease;
+    }
+
+    .loupe.show {
+      opacity: 1;
+    }
+
+    .loupe-color {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      border: 4px solid #fff;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35), 0 10px 24px rgba(0, 0, 0, 0.45);
+    }
+
+    .loupe-hex {
+      padding: 2px 8px;
+      border-radius: 999px;
+      background-color: rgba(11, 18, 32, 0.92);
+      color: #fff;
+      font-family: monospace;
+      font-size: 0.8rem;
+      font-weight: 700;
     }
 
     .blend-canvas-wrapper {
@@ -525,6 +606,7 @@
       width: 100%;
       border-radius: 5px;
       overflow: hidden;
+      touch-action: none;
       border: 1px solid rgba(0, 0, 0, 0.2);
       cursor: crosshair;
       box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
@@ -550,8 +632,10 @@
     }
 
     .color-swatch-preview {
-      width: 48px;
-      height: 48px;
+      width: 52px;
+      height: 52px;
+      min-width: 0;
+      padding: 0;
       border-radius: 8px;
       border: 2px solid #fff;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
@@ -582,6 +666,11 @@
       font-size: 0.75rem;
       color: #93c5fd;
       font-weight: 600;
+    }
+
+    .color-details-edit {
+      font-size: 0.7rem;
+      color: var(--text-muted);
     }
 
     .harmony-row {
@@ -631,7 +720,9 @@
       height: auto;
       aspect-ratio: 1;
       cursor: pointer;
-      touch-action: manipulation;
+      /* Se elige deslizando el dedo sobre el círculo */
+      touch-action: none;
+      -webkit-touch-callout: none;
     }
 
     .wheel-hint {
@@ -646,6 +737,7 @@
       display: grid;
       grid-template-columns: repeat(6, minmax(0, 1fr));
       gap: 4px;
+      touch-action: none;
     }
 
     .quick-swatch {
@@ -680,6 +772,152 @@
       gap: 6px 16px;
       flex-wrap: wrap;
       padding: 0 calc(24px + var(--safe-right)) calc(6px + var(--safe-bottom)) calc(24px + var(--safe-left));
+    }
+
+    /* Selector de color (tono, saturación y valor) */
+    .color-dialog {
+      margin: auto;
+      padding: 0;
+      width: min(420px, calc(100vw - 24px));
+      max-height: calc(100dvh - 24px);
+      overflow-y: auto;
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      background-color: var(--panel-bg);
+      color: var(--text-main);
+      box-shadow: var(--shadow-elevation);
+    }
+
+    .color-dialog::backdrop {
+      background-color: rgba(0, 0, 0, 0.6);
+    }
+
+    .cp {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 14px 16px 16px;
+    }
+
+    .cp-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .cp-head h2 {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .cp-close {
+      background: transparent;
+      border-color: transparent;
+      font-size: 1.1rem;
+    }
+
+    .cp-preview {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      height: 76px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .cp-preview div {
+      display: flex;
+      align-items: flex-end;
+      padding: 6px;
+    }
+
+    .cp-preview span {
+      padding: 2px 8px;
+      border-radius: 999px;
+      background-color: rgba(11, 18, 32, 0.85);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .cp-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 6px 10px;
+    }
+
+    .cp-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .cp-num {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .cp-num input,
+    .cp-hex input {
+      width: 76px;
+      min-height: 40px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background-color: #111317;
+      color: var(--text-main);
+      font-size: 16px;
+      text-align: right;
+      -webkit-user-select: text;
+      user-select: text;
+    }
+
+    .cp-hex input {
+      width: 110px;
+      font-family: monospace;
+      text-transform: uppercase;
+      text-align: left;
+    }
+
+    .cp-track {
+      --t: 0;
+      grid-column: 1 / -1;
+      position: relative;
+      height: 32px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      cursor: pointer;
+      touch-action: none;
+    }
+
+    .cp-thumb {
+      position: absolute;
+      top: 50%;
+      left: calc(15px + (100% - 30px) * var(--t));
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 3px solid #fff;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.4);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .cp-hex {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .cp-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
     }
 
     /* Aviso breve */
@@ -821,7 +1059,7 @@
 
       @supports (width: 1cqw) {
         .viewport-canvas-mount {
-          --grid-size: clamp(240px, min(100cqw - 32px, 100dvh - 270px), 720px);
+          --grid-size: clamp(240px, min(100cqw - 32px, 100dvh - 300px), 720px);
         }
       }
 
@@ -883,7 +1121,7 @@
 
       @supports (width: 1cqw) {
         .viewport-canvas-mount {
-          --grid-size: max(200px, min(100cqw - 24px, 100dvh - 190px));
+          --grid-size: max(200px, min(100cqw - 24px, 100dvh - 220px));
         }
       }
 
@@ -1060,22 +1298,24 @@
 
         <div class="blend-container">
           <div class="blend-endpoints">
-            <label class="endpoint-picker">
-              <input type="color" id="startColorPicker" value="#FFE600" aria-label="Color del polo A">
-              <span id="startColorLabel">Polo A</span>
-            </label>
-            <div class="blend-hint">
-              <span>Gradación continua</span>
-              Toca o desliza para muestrear
-            </div>
-            <label class="endpoint-picker">
-              <span id="endColorLabel">Polo B</span>
-              <input type="color" id="endColorPicker" value="#0044BB" aria-label="Color del polo B">
-            </label>
+            <button type="button" class="pole-btn" id="poleABtn" aria-label="Cambiar el color del polo A">
+              <span class="pole-swatch" id="poleASwatch"></span>
+              <span>Polo A</span>
+            </button>
+            <button type="button" class="brush-chip" id="brushChip" aria-label="Cambiar el color del pincel">
+              <span class="brush-chip-swatch" id="brushChipSwatch"></span>
+              <span class="brush-chip-text"><span>Pincel</span><b id="brushChipHex">#FFE600</b></span>
+            </button>
+            <button type="button" class="pole-btn" id="poleBBtn" aria-label="Cambiar el color del polo B">
+              <span>Polo B</span>
+              <span class="pole-swatch" id="poleBSwatch"></span>
+            </button>
           </div>
           <div class="blend-canvas-wrapper" id="blendWrapper">
             <canvas id="blendCanvas" width="440" height="36" aria-label="Gradación entre el polo A y el polo B"></canvas>
+            <div class="blend-marker" id="blendMarker" hidden></div>
           </div>
+          <p class="blend-hint">Desliza en la barra para muestrear · Toca un color para editarlo</p>
         </div>
       </div>
     </section>
@@ -1085,11 +1325,12 @@
       <div class="panel-section" id="sec-pincel">
         <div class="panel-title"><span>Pincel activo</span></div>
         <div class="active-color-card">
-          <div id="currentColorSwatch" class="color-swatch-preview" style="background-color: #FFE600;"></div>
+          <button type="button" id="currentColorSwatch" class="color-swatch-preview" style="background-color: #FFE600;" aria-label="Cambiar el color del pincel"></button>
           <div class="color-details">
             <span id="currentColorHex" class="color-details-hex">#FFE600</span>
             <span id="currentColorRgb" class="color-details-rgb">rgb(255, 230, 0)</span>
             <span id="currentColorName" class="color-details-role">Amarillo (primario)</span>
+            <span class="color-details-edit">Toca la muestra para editar el color</span>
           </div>
         </div>
 
@@ -1107,7 +1348,7 @@
         <div class="panel-title"><span>Círculo cromático de Itten (12 tonos)</span></div>
         <div class="wheel-container">
           <svg id="ittenWheelSvg" viewBox="-120 -120 240 240" role="group" aria-label="Círculo cromático de Itten"></svg>
-          <div class="wheel-hint">Toca cualquier faceta para seleccionar el tono</div>
+          <div class="wheel-hint">Toca o desliza el dedo sobre el círculo para elegir un tono</div>
         </div>
       </div>
 
@@ -1131,6 +1372,53 @@
   </footer>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <div id="loupe" class="loupe" aria-hidden="true">
+    <span class="loupe-color" id="loupeColor"></span>
+    <span class="loupe-hex" id="loupeHex"></span>
+  </div>
+
+  <dialog id="colorDialog" class="color-dialog" aria-labelledby="cpTitle">
+    <form class="cp" id="cpForm">
+      <div class="cp-head">
+        <h2 id="cpTitle">Color del pincel</h2>
+        <button type="button" class="cp-close" data-cp-cancel aria-label="Cerrar">✕</button>
+      </div>
+
+      <div class="cp-preview">
+        <div id="cpOld"><span>Actual</span></div>
+        <div id="cpNew"><span>Nuevo</span></div>
+      </div>
+
+      <div class="cp-row">
+        <label class="cp-name" for="cpH">Tono</label>
+        <span class="cp-num"><input id="cpH" type="number" min="0" max="360" step="1" inputmode="numeric"> °</span>
+        <div class="cp-track" id="cpHTrack" data-key="h" data-max="360" role="slider" tabindex="0" aria-label="Tono" aria-valuemin="0" aria-valuemax="360"><span class="cp-thumb"></span></div>
+      </div>
+
+      <div class="cp-row">
+        <label class="cp-name" for="cpS">Saturación</label>
+        <span class="cp-num"><input id="cpS" type="number" min="0" max="100" step="1" inputmode="numeric"> %</span>
+        <div class="cp-track" id="cpSTrack" data-key="s" data-max="100" role="slider" tabindex="0" aria-label="Saturación" aria-valuemin="0" aria-valuemax="100"><span class="cp-thumb"></span></div>
+      </div>
+
+      <div class="cp-row">
+        <label class="cp-name" for="cpV">Valor</label>
+        <span class="cp-num"><input id="cpV" type="number" min="0" max="100" step="1" inputmode="numeric"> %</span>
+        <div class="cp-track" id="cpVTrack" data-key="v" data-max="100" role="slider" tabindex="0" aria-label="Valor" aria-valuemin="0" aria-valuemax="100"><span class="cp-thumb"></span></div>
+      </div>
+
+      <label class="cp-hex">
+        <span class="cp-name">Código hexadecimal</span>
+        <input id="cpHex" type="text" maxlength="7" autocomplete="off" autocapitalize="characters" spellcheck="false">
+      </label>
+
+      <div class="cp-actions">
+        <button type="button" data-cp-cancel>Cancelar</button>
+        <button type="submit" class="primary-action">Aplicar</button>
+      </div>
+    </form>
+  </dialog>
 
   <script>
     /* =========================================================================
@@ -1227,6 +1515,8 @@
     let showBorders = true;
     let gridData = [];
     let frameBg = "#ffffff";
+    let poleA = "#FFE600";
+    let poleB = "#0044BB";
     let frameTone = "light";
 
     // Trazo en curso (pincel)
@@ -1266,18 +1556,26 @@
 
     const blendCanvas = document.getElementById("blendCanvas");
     const blendWrapper = document.getElementById("blendWrapper");
-    const startColorPicker = document.getElementById("startColorPicker");
-    const endColorPicker = document.getElementById("endColorPicker");
-    const startColorLabel = document.getElementById("startColorLabel");
-    const endColorLabel = document.getElementById("endColorLabel");
+    const blendMarker = document.getElementById("blendMarker");
+    const poleABtn = document.getElementById("poleABtn");
+    const poleBBtn = document.getElementById("poleBBtn");
+    const poleASwatch = document.getElementById("poleASwatch");
+    const poleBSwatch = document.getElementById("poleBSwatch");
+    const brushChip = document.getElementById("brushChip");
+    const brushChipSwatch = document.getElementById("brushChipSwatch");
+    const brushChipHex = document.getElementById("brushChipHex");
+    const swatchRow = document.querySelector(".swatch-row");
+    const compDot = document.getElementById("compDot");
+    const compName = document.getElementById("compName");
+    const pickCompBtn = document.getElementById("pickCompBtn");
+    const loupe = document.getElementById("loupe");
+    const loupeColor = document.getElementById("loupeColor");
+    const loupeHex = document.getElementById("loupeHex");
 
     const currentColorSwatch = document.getElementById("currentColorSwatch");
     const currentColorHex = document.getElementById("currentColorHex");
     const currentColorRgb = document.getElementById("currentColorRgb");
     const currentColorName = document.getElementById("currentColorName");
-    const compDot = document.getElementById("compDot");
-    const compName = document.getElementById("compName");
-    const pickCompBtn = document.getElementById("pickCompBtn");
 
     const ittenWheelSvg = document.getElementById("ittenWheelSvg");
     const canvasCellsCount = document.getElementById("canvasCellsCount");
@@ -1292,10 +1590,8 @@
       Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
       el.setAttribute("fill", hex);
       el.setAttribute("stroke", "#1c202a");
-      el.setAttribute("role", "button");
       el.setAttribute("aria-label", label);
-      el.style.cursor = "pointer";
-      el.addEventListener("click", () => setCurrentColor(hex));
+      el.dataset.hex = hex;
       ittenWheelSvg.appendChild(el);
     }
 
@@ -1643,8 +1939,8 @@
       const height = blendCanvas.height;
 
       const grad = ctx.createLinearGradient(0, 0, width, 0);
-      grad.addColorStop(0, startColorPicker.value);
-      grad.addColorStop(1, endColorPicker.value);
+      grad.addColorStop(0, poleA);
+      grad.addColorStop(1, poleB);
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, width, height);
 
@@ -1658,43 +1954,27 @@
     }
 
     function setPoles(c1, c2) {
-      startColorPicker.value = c1.toLowerCase();
-      endColorPicker.value = c2.toLowerCase();
-      startColorLabel.textContent = c1.toUpperCase();
-      endColorLabel.textContent = c2.toUpperCase();
+      poleA = c1.toUpperCase();
+      poleB = c2.toUpperCase();
+      poleASwatch.style.backgroundColor = poleA;
+      poleBSwatch.style.backgroundColor = poleB;
+      blendMarker.hidden = true;
       renderBlend();
     }
 
-    function sampleBlend(e) {
+    // Color de la gradación bajo un punto (fuera de la barra se toma el extremo más cercano)
+    function blendHexAt(clientX) {
       const rect = blendCanvas.getBoundingClientRect();
-      const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
-      setCurrentColor(mixHex(startColorPicker.value, endColorPicker.value, x / rect.width));
+      const t = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+      blendMarker.style.left = `${t * 100}%`;
+      return mixHex(poleA, poleB, t);
     }
 
-    let isSampling = false;
-    blendCanvas.addEventListener("pointerdown", e => {
-      if (!e.isPrimary) return;
-      e.preventDefault();
-      isSampling = true;
-      // Con la captura, el muestreo continúa aunque el dedo salga del canvas
-      capturePointer(blendCanvas, e.pointerId);
-      sampleBlend(e);
+    poleABtn.addEventListener("click", () => {
+      openColorPicker("Color del polo A", poleA, hex => setPoles(hex, poleB));
     });
-    blendCanvas.addEventListener("pointermove", e => {
-      if (isSampling) sampleBlend(e);
-    });
-    ["pointerup", "pointercancel", "lostpointercapture"].forEach(type => {
-      blendCanvas.addEventListener(type, () => { isSampling = false; });
-    });
-    blendCanvas.addEventListener("contextmenu", e => e.preventDefault());
-
-    startColorPicker.addEventListener("input", () => {
-      renderBlend();
-      startColorLabel.textContent = startColorPicker.value.toUpperCase();
-    });
-    endColorPicker.addEventListener("input", () => {
-      renderBlend();
-      endColorLabel.textContent = endColorPicker.value.toUpperCase();
+    poleBBtn.addEventListener("click", () => {
+      openColorPicker("Color del polo B", poleB, hex => setPoles(poleA, hex));
     });
 
     new ResizeObserver(resizeBlendCanvas).observe(blendWrapper);
@@ -1703,10 +1983,14 @@
        9. GESTIÓN E IDENTIFICACIÓN DEL COLOR ACTIVO
        ========================================================================= */
 
-    function setCurrentColor(hex) {
+    function setCurrentColor(hex, source = "") {
       currentColor = hex.toUpperCase();
       currentColorSwatch.style.backgroundColor = currentColor;
       currentColorHex.textContent = currentColor;
+      brushChipSwatch.style.backgroundColor = currentColor;
+      brushChipHex.textContent = currentColor;
+      // El marcador de la gradación solo se ve si el color salió de ella
+      blendMarker.hidden = source !== "blend";
 
       const rgb = hexToRgb(currentColor);
       currentColorRgb.textContent = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
@@ -1741,6 +2025,181 @@
 
     document.querySelectorAll(".quick-swatch[data-color]").forEach(btn => {
       btn.addEventListener("click", () => setCurrentColor(btn.dataset.color));
+    });
+
+    [currentColorSwatch, brushChip].forEach(btn => {
+      btn.addEventListener("click", () => {
+        openColorPicker("Color del pincel", currentColor, hex => setCurrentColor(hex));
+      });
+    });
+
+    /* --- Lupa: muestra el color bajo el dedo mientras se desliza --- */
+
+    function showLoupe(x, y, hex, pointerType) {
+      const offset = pointerType === "mouse" ? 24 : 56;
+      let top = y - offset;
+      // Si no cabe encima del dedo, se muestra debajo
+      if (top < 112) top = y + offset + 104;
+      loupe.style.left = `${Math.max(48, Math.min(window.innerWidth - 48, x))}px`;
+      loupe.style.top = `${top}px`;
+      loupeColor.style.backgroundColor = hex;
+      loupeHex.textContent = hex.toUpperCase();
+      loupe.classList.add("show");
+    }
+
+    function hideLoupe() {
+      loupe.classList.remove("show");
+    }
+
+    // Elegir color tocando o deslizando sobre una superficie (círculo, acromáticos, gradación)
+    function attachColorScrub(surface, hexAt, source = "") {
+      let active = false;
+      const pickAt = e => {
+        const hex = hexAt(e.clientX, e.clientY);
+        if (!hex) return;
+        setCurrentColor(hex, source);
+        showLoupe(e.clientX, e.clientY, hex, e.pointerType);
+      };
+      surface.addEventListener("pointerdown", e => {
+        if (!e.isPrimary || (e.pointerType === "mouse" && e.button !== 0)) return;
+        e.preventDefault();
+        active = true;
+        capturePointer(surface, e.pointerId);
+        pickAt(e);
+      });
+      surface.addEventListener("pointermove", e => {
+        if (active && e.isPrimary) pickAt(e);
+      });
+      ["pointerup", "pointercancel", "lostpointercapture"].forEach(type => {
+        surface.addEventListener(type, () => {
+          active = false;
+          hideLoupe();
+        });
+      });
+      surface.addEventListener("contextmenu", e => e.preventDefault());
+    }
+
+    const elementHexAt = (container, selector, attr) => (x, y) => {
+      const el = document.elementFromPoint(x, y);
+      const target = el && container.contains(el) ? el.closest(selector) : null;
+      return target ? target.dataset[attr] : null;
+    };
+
+    attachColorScrub(ittenWheelSvg, elementHexAt(ittenWheelSvg, "[data-hex]", "hex"));
+    attachColorScrub(swatchRow, elementHexAt(swatchRow, ".quick-swatch", "color"));
+    attachColorScrub(blendCanvas, x => blendHexAt(x), "blend");
+
+    /* --- Selector de color propio: tono, saturación y valor del color actual --- */
+
+    const colorDialog = document.getElementById("colorDialog");
+    const cpForm = document.getElementById("cpForm");
+    const cpTitle = document.getElementById("cpTitle");
+    const cpOld = document.getElementById("cpOld");
+    const cpNew = document.getElementById("cpNew");
+    const cpHex = document.getElementById("cpHex");
+    const cpInputs = { h: document.getElementById("cpH"), s: document.getElementById("cpS"), v: document.getElementById("cpV") };
+    const cpTracks = { h: document.getElementById("cpHTrack"), s: document.getElementById("cpSTrack"), v: document.getElementById("cpVTrack") };
+    const CP_MAX = { h: 360, s: 100, v: 100 };
+    let cpState = { h: 0, s: 0, v: 0 };
+    let cpOnApply = null;
+
+    function openColorPicker(title, hex, onApply) {
+      cpTitle.textContent = title;
+      cpOld.style.backgroundColor = hex;
+      cpState = hexToHsv(hex);
+      cpOnApply = onApply;
+      renderColorPicker();
+      colorDialog.showModal();
+    }
+
+    function renderColorPicker() {
+      const { h, s, v } = cpState;
+      const hex = hsvToHex(h, s, v);
+      cpNew.style.backgroundColor = hex;
+
+      cpTracks.h.style.background = "linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)";
+      cpTracks.s.style.background = `linear-gradient(to right, ${hsvToHex(h, 0, v)}, ${hsvToHex(h, 100, v)})`;
+      cpTracks.v.style.background = `linear-gradient(to right, #000, ${hsvToHex(h, s, 100)})`;
+
+      Object.keys(cpTracks).forEach(key => {
+        const track = cpTracks[key];
+        const value = Math.round(cpState[key]);
+        track.style.setProperty("--t", cpState[key] / CP_MAX[key]);
+        track.querySelector(".cp-thumb").style.backgroundColor = key === "h" ? hsvToHex(h, 100, 100) : hex;
+        track.setAttribute("aria-valuenow", value);
+        track.setAttribute("aria-valuetext", key === "h" ? `${value} grados` : `${value} %`);
+        // No se reescribe el campo que se está editando
+        if (document.activeElement !== cpInputs[key]) cpInputs[key].value = value;
+      });
+      if (document.activeElement !== cpHex) cpHex.value = hex;
+    }
+
+    Object.keys(cpTracks).forEach(key => {
+      const track = cpTracks[key];
+      let dragging = false;
+      const setFromX = clientX => {
+        const rect = track.getBoundingClientRect();
+        const t = Math.max(0, Math.min(1, (clientX - rect.left - 15) / (rect.width - 30)));
+        cpState[key] = t * CP_MAX[key];
+        renderColorPicker();
+      };
+      track.addEventListener("pointerdown", e => {
+        if (!e.isPrimary) return;
+        e.preventDefault();
+        dragging = true;
+        capturePointer(track, e.pointerId);
+        track.focus();
+        setFromX(e.clientX);
+      });
+      track.addEventListener("pointermove", e => {
+        if (dragging) setFromX(e.clientX);
+      });
+      ["pointerup", "pointercancel", "lostpointercapture"].forEach(type => {
+        track.addEventListener(type, () => { dragging = false; });
+      });
+      track.addEventListener("keydown", e => {
+        const step = e.shiftKey ? 10 : 1;
+        const delta = { ArrowRight: step, ArrowUp: step, ArrowLeft: -step, ArrowDown: -step }[e.key];
+        if (delta === undefined && e.key !== "Home" && e.key !== "End") return;
+        e.preventDefault();
+        if (e.key === "Home") cpState[key] = 0;
+        else if (e.key === "End") cpState[key] = CP_MAX[key];
+        else cpState[key] = Math.max(0, Math.min(CP_MAX[key], Math.round(cpState[key]) + delta));
+        renderColorPicker();
+      });
+
+      const input = cpInputs[key];
+      input.addEventListener("input", () => {
+        const n = parseFloat(input.value);
+        if (Number.isFinite(n)) {
+          cpState[key] = Math.max(0, Math.min(CP_MAX[key], n));
+          renderColorPicker();
+        }
+      });
+      input.addEventListener("blur", () => { input.value = Math.round(cpState[key]); });
+    });
+
+    cpHex.addEventListener("input", () => {
+      const value = cpHex.value.trim();
+      if (/^#?[0-9a-f]{6}$/i.test(value)) {
+        cpState = hexToHsv(value.startsWith("#") ? value : `#${value}`);
+        renderColorPicker();
+      }
+    });
+    cpHex.addEventListener("blur", () => { cpHex.value = hsvToHex(cpState.h, cpState.s, cpState.v); });
+
+    cpForm.addEventListener("submit", e => {
+      e.preventDefault();
+      const hex = hsvToHex(cpState.h, cpState.s, cpState.v);
+      colorDialog.close();
+      if (cpOnApply) cpOnApply(hex);
+    });
+    colorDialog.querySelectorAll("[data-cp-cancel]").forEach(btn => {
+      btn.addEventListener("click", () => colorDialog.close());
+    });
+    // Tocar fuera del cuadro lo cierra sin aplicar
+    colorDialog.addEventListener("click", e => {
+      if (e.target === colorDialog) colorDialog.close();
     });
 
     /* =========================================================================
@@ -2588,6 +3047,33 @@
       );
     }
 
+    // Tono 0–360, saturación y valor 0–100
+    function hsvToHex(h, s, v) {
+      s /= 100;
+      v /= 100;
+      const f = n => {
+        const k = (n + h / 60) % 6;
+        return Math.round(255 * (v - v * s * Math.max(0, Math.min(k, 4 - k, 1))));
+      };
+      return rgbToHex(f(5), f(3), f(1));
+    }
+
+    function hexToHsv(hex) {
+      const { r, g, b } = hexToRgb(hex);
+      const R = r / 255, G = g / 255, B = b / 255;
+      const max = Math.max(R, G, B);
+      const d = max - Math.min(R, G, B);
+      let h = 0;
+      if (d) {
+        if (max === R) h = ((G - B) / d) % 6;
+        else if (max === G) h = (B - R) / d + 2;
+        else h = (R - G) / d + 4;
+        h *= 60;
+        if (h < 0) h += 360;
+      }
+      return { h, s: max ? d / max * 100 : 0, v: max * 100 };
+    }
+
     // Gris con la misma luminosidad percibida que el color dado
     function grayOfSameValue(hex) {
       const { r, g, b } = hexToRgb(hex);
@@ -2602,6 +3088,7 @@
     buildIttenWheel();
     cardDesc.textContent = EXERCISES.libre.desc;
     createGrid(gridSize);
+    setPoles(EXERCISES.libre.c1, EXERCISES.libre.c2);
     resizeBlendCanvas();
     setCurrentColor(currentColor);
     updateHistoryButtons();
