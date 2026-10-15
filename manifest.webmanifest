@@ -1,7 +1,7 @@
 {
   "name": "Estudio del color",
   "short_name": "Estudio del color",
-  "description": "Laboratorio de teoría del color basado en los siete contrastes de Johannes Itten.",
+  "description": "Laboratorio de teoría del color: contrastes, armonías y estrella de Itten, e interacción del color de Albers.",
   "lang": "es",
   "start_url": "./itten_color_studio.html",
   "scope": "./",

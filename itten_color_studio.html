@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Estudio del color · Laboratorio de teoría del color</title>
-  <meta name="description" content="Laboratorio de teoría del color basado en los siete contrastes de Johannes Itten.">
+  <meta name="description" content="Laboratorio de teoría del color: contrastes, armonías y estrella de Itten, e interacción del color de Albers.">
   <meta name="theme-color" content="#161920">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -920,6 +920,658 @@
       gap: 8px;
     }
 
+    /* Pantalla de inicio: elegir entre contrastes y armonías */
+    body.home-open {
+      overflow: hidden;
+    }
+
+    .home {
+      position: fixed;
+      inset: 0;
+      z-index: 45;
+      overflow-y: auto;
+      background-color: var(--bg);
+      display: flex;
+      padding: calc(28px + var(--safe-top)) calc(20px + var(--safe-right)) calc(24px + var(--safe-bottom)) calc(20px + var(--safe-left));
+    }
+
+    .home[hidden] {
+      display: none;
+    }
+
+    .home-inner {
+      width: min(980px, 100%);
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .home-brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .home-brand .brand-badge span {
+      width: 13px;
+      height: 40px;
+      border-radius: 3px;
+    }
+
+    .home-brand h2 {
+      font-size: clamp(1.6rem, 5vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
+    .home-brand p {
+      margin-top: 6px;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .home-question {
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+
+    .home-cards {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    @media (min-width: 640px) {
+      .home-cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .home-card {
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 12px;
+      padding: 22px;
+      min-height: 0;
+      text-align: left;
+      border-radius: 14px;
+      background-color: var(--panel-bg);
+      border: 1px solid var(--border-color);
+    }
+
+    .home-card svg {
+      width: 92px;
+      height: 92px;
+    }
+
+    .home-card h3 {
+      font-size: 1.3rem;
+      font-weight: 800;
+    }
+
+    .home-card p {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      font-weight: 400;
+      line-height: 1.45;
+    }
+
+    .home-go {
+      margin-top: 4px;
+      color: #93c5fd;
+      font-weight: 600;
+    }
+
+    @media (hover: hover) {
+      .home-card:hover:not(:disabled) {
+        background-color: #1c2231;
+        border-color: var(--accent);
+      }
+    }
+
+    .home-foot {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Cada elemento propio de una sección solo se ve en ella */
+    body:not([data-section="contrastes"]) [data-only="contrastes"],
+    body:not([data-section="armonias"]) [data-only="armonias"],
+    body:not([data-section="estrella"]) [data-only="estrella"],
+    body:not([data-section="interaccion"]) [data-only="interaccion"],
+    body[data-section="estrella"] [data-hide-in~="estrella"],
+    body[data-section="interaccion"] [data-hide-in~="interaccion"],
+    .albers-view:not([data-exercise="dos-uno"]) [data-albers="dos-uno"],
+    .albers-view:not([data-exercise="cinco-seis"]) [data-albers="cinco-seis"] {
+      display: none !important;
+    }
+
+    /* Ficha de armonía */
+    .card-desc .source-line {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .card-desc h4 {
+      margin-top: 10px;
+      font-size: 0.66rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #93c5fd;
+    }
+
+    .contrast-tag.tag-otros {
+      color: #fbbf24;
+    }
+
+    /* Paleta de la armonía */
+    .harmony-base {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .harmony-base-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .harmony-base-info strong {
+      font-size: 0.92rem;
+      color: var(--text-main);
+    }
+
+    .harmony-palette {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(62px, 1fr));
+      gap: 6px;
+    }
+
+    .harmony-swatch {
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+      gap: 0;
+      padding: 0;
+      min-width: 0;
+      overflow: hidden;
+      border-radius: 6px;
+    }
+
+    .harmony-swatch i {
+      display: block;
+      height: 40px;
+    }
+
+    .harmony-swatch span {
+      padding: 4px 3px 0;
+      font-size: 0.66rem;
+      line-height: 1.2;
+      overflow-wrap: anywhere;
+    }
+
+    .harmony-swatch code {
+      padding: 0 2px 5px;
+      font-size: 0.66rem;
+      color: var(--text-muted);
+    }
+
+    .harmony-swatch.is-current {
+      box-shadow: 0 0 0 2px #fff;
+    }
+
+    .palette-hint {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    /* Paleta desde imagen */
+    .image-dialog {
+      width: min(560px, calc(100vw - 24px));
+    }
+
+    .img-intro {
+      font-size: 0.85rem;
+      line-height: 1.45;
+      color: var(--text-muted);
+    }
+
+    .img-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .img-drop {
+      border: 2px dashed var(--border-color);
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .img-drop.dragover {
+      border-color: var(--accent);
+      color: var(--text-main);
+    }
+
+    .img-results {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .img-results[hidden] {
+      display: none;
+    }
+
+    .img-preview {
+      display: block;
+      max-width: 100%;
+      max-height: 220px;
+      margin: 0 auto;
+      border-radius: 8px;
+      object-fit: contain;
+    }
+
+    .img-swatches {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+      gap: 6px;
+    }
+
+    .img-diagnosis {
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: #cbd5e1;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+
+    .img-diagnosis b {
+      color: #fff;
+    }
+
+    /* Filas de un tono con sus siete valores (estrella y paleta con valores) */
+    .chord-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .chord-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .chord-name {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .chord-name b {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .chord-chips {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 3px;
+    }
+
+    .chord-chip {
+      min-width: 0;
+      min-height: 40px;
+      padding: 0;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .chord-chip.pure {
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.55);
+    }
+
+    .chord-chip.is-current {
+      box-shadow: 0 0 0 2px #fff;
+    }
+
+    .chord-scale {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.66rem;
+      color: var(--text-muted);
+    }
+
+    .harmony-palette.with-values {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .values-toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: var(--tap);
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .values-toggle input {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--accent);
+    }
+
+    /* Estrella de color */
+    .star-view {
+      flex: 1 1 auto;
+      min-height: 540px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) clamp(290px, 28vw, 360px);
+      grid-template-rows: minmax(0, 1fr);
+      gap: 14px;
+      padding: 14px calc(18px + var(--safe-right)) 14px calc(18px + var(--safe-left));
+    }
+
+    .star-stage {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+      min-height: 0;
+      padding: 12px;
+      background-color: #101217;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      container-type: size;
+    }
+
+    #starSvg {
+      width: 100%;
+      max-width: 640px;
+      aspect-ratio: 1;
+      touch-action: none;
+      -webkit-touch-callout: none;
+      cursor: grab;
+    }
+
+    @supports (width: 1cqw) {
+      #starSvg {
+        width: min(100cqw, 100cqh);
+        max-width: none;
+      }
+    }
+
+    #starSvg.dragging {
+      cursor: grabbing;
+    }
+
+    .star-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 14px 12px;
+      overflow-y: auto;
+      background-color: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+    }
+
+    .star-block {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .star-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 1.2px;
+    }
+
+    .star-what {
+      font-size: 0.85rem;
+      line-height: 1.45;
+      color: #cbd5e1;
+    }
+
+    .star-panel select {
+      width: 100%;
+    }
+
+    #starPrevBtn,
+    #starNextBtn {
+      font-size: 1.35rem;
+      line-height: 1;
+    }
+
+    @media (max-width: 1023.98px) {
+      .star-view {
+        min-height: 0;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto;
+        padding: 12px calc(12px + var(--safe-right)) 16px calc(12px + var(--safe-left));
+      }
+
+      .star-stage {
+        container-type: inline-size;
+      }
+
+      @supports (width: 1cqw) {
+        #starSvg {
+          width: min(100cqw, 640px);
+        }
+      }
+
+      .star-panel {
+        overflow: visible;
+      }
+    }
+
+    /* Interacción del color (ejercicios de Albers) */
+    .albers-stage {
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    #albersSvg,
+    .albers-strip-wrap {
+      width: 100%;
+    }
+
+    #albersSvg [data-key] {
+      cursor: pointer;
+    }
+
+    .albers-strip.empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 8px;
+      background: repeating-linear-gradient(45deg, #1c202a 0 8px, #232838 8px 16px);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      text-align: center;
+      cursor: default;
+    }
+
+    .albers-color.empty i {
+      background: transparent;
+      border-style: dashed;
+    }
+
+    .albers-actions {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .albers-actions button {
+      flex: 1;
+      min-width: 0;
+    }
+
+    @supports (width: 1cqw) {
+      #albersSvg,
+      .albers-strip-wrap,
+      .albers-actions {
+        width: min(100cqw, (100cqh - 150px) * 1.6);
+      }
+    }
+
+    #albersSvg {
+      display: block;
+      aspect-ratio: 1.6;
+      border-radius: 6px;
+      box-shadow: var(--shadow-elevation);
+    }
+
+    .albers-strip-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .albers-strip {
+      position: relative;
+      height: 40px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      cursor: crosshair;
+      touch-action: none;
+      -webkit-touch-callout: none;
+    }
+
+    .albers-marker {
+      position: absolute;
+      top: -4px;
+      bottom: -4px;
+      width: 12px;
+      transform: translateX(-50%);
+      border: 2px solid #fff;
+      border-radius: 4px;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6);
+      pointer-events: none;
+    }
+
+    .albers-strip-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .albers-steps {
+      padding-left: 18px;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      color: #cbd5e1;
+    }
+
+    .albers-steps li {
+      margin-bottom: 4px;
+    }
+
+    .albers-colors {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .albers-color {
+      justify-content: flex-start;
+      gap: 8px;
+      padding: 6px 8px;
+      min-width: 0;
+      text-align: left;
+    }
+
+    .albers-color i {
+      width: 30px;
+      height: 30px;
+      flex-shrink: 0;
+      border-radius: 5px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .albers-color span {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      font-size: 0.72rem;
+      line-height: 1.2;
+    }
+
+    .albers-color code {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .albers-color.fixed,
+    .albers-color.fixed:disabled {
+      cursor: default;
+      opacity: 1;
+      background-color: transparent;
+      border-style: dashed;
+    }
+
+    .albers-range {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 0.8rem;
+    }
+
+    .albers-range span {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .albers-range input {
+      width: 100%;
+      height: var(--tap);
+      accent-color: var(--accent);
+    }
+
+    .albers-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .albers-row > * {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* La marca también lleva al inicio */
+    button.brand {
+      background: transparent;
+      border: none;
+      padding: 0;
+      min-width: 0;
+      justify-content: flex-start;
+      color: inherit;
+    }
+
     /* Aviso breve */
     .toast {
       position: fixed;
@@ -1167,13 +1819,14 @@
       }
 
       #sec-ficha { order: 1; }
-      #sec-herramienta { order: 2; }
-      #sec-pincel { order: 3; }
-      #sec-circulo { order: 4; }
-      #sec-acromaticos { order: 5; }
-      #sec-reticula { order: 6; }
-      #sec-simetria { order: 7; }
-      #sec-fondo { order: 8; }
+      #sec-paleta { order: 2; }
+      #sec-herramienta { order: 3; }
+      #sec-pincel { order: 4; }
+      #sec-circulo { order: 5; }
+      #sec-acromaticos { order: 6; }
+      #sec-reticula { order: 7; }
+      #sec-simetria { order: 8; }
+      #sec-fondo { order: 9; }
 
       #ittenWheelSvg {
         max-width: 320px;
@@ -1188,19 +1841,80 @@
 </head>
 <body>
 
-  <!-- Barra superior -->
-  <div class="topbar">
-    <header class="app-header">
-      <div class="brand">
+  <!-- Pantalla de inicio -->
+  <section class="home" id="home" aria-labelledby="homeTitle" hidden>
+    <div class="home-inner">
+      <div class="home-brand">
         <div class="brand-badge" aria-hidden="true">
           <span style="background: #FFE600;"></span>
           <span style="background: #E60000;"></span>
           <span style="background: #0044BB;"></span>
         </div>
-        <h1>Estudio del color</h1>
+        <div>
+          <h2 id="homeTitle">Estudio del color</h2>
+          <p>Laboratorio de teoría del color basado en Johannes Itten y Josef Albers</p>
+        </div>
       </div>
 
-      <div class="history-controls">
+      <p class="home-question">¿Qué quieres explorar?</p>
+
+      <div class="home-cards">
+        <button type="button" class="home-card" data-section-go="contrastes">
+          <svg viewBox="0 0 92 92" aria-hidden="true">
+            <rect x="2" y="2" width="44" height="88" rx="4" fill="#E60000"/>
+            <rect x="46" y="2" width="44" height="88" rx="4" fill="#009933"/>
+            <rect x="16" y="34" width="16" height="24" fill="#808080"/>
+            <rect x="60" y="34" width="16" height="24" fill="#808080"/>
+          </svg>
+          <h3>Contrastes de color</h3>
+          <p>Los siete contrastes de Itten: tono, valor, temperatura, complementarios, extensión, saturación y simultáneo.</p>
+          <span class="home-go">Entrar →</span>
+        </button>
+
+        <button type="button" class="home-card" data-section-go="armonias">
+          <svg viewBox="-46 -46 92 92" aria-hidden="true" id="homeWheel"></svg>
+          <h3>Armonías de color</h3>
+          <p>Concordancias en el círculo de 12 tonos: complementarias, tríadas, tétradas y más, y la paleta de tus propias imágenes.</p>
+          <span class="home-go">Entrar →</span>
+        </button>
+
+        <button type="button" class="home-card" data-section-go="estrella">
+          <svg viewBox="-160 -160 320 320" aria-hidden="true" id="homeStar"></svg>
+          <h3>Estrella de color</h3>
+          <p>La estrella de 12 puntas de Itten con discos que giran para aislar cada armonía en todos sus valores, del claro al oscuro.</p>
+          <span class="home-go">Entrar →</span>
+        </button>
+
+        <button type="button" class="home-card" data-section-go="interaccion">
+          <svg viewBox="0 0 92 92" aria-hidden="true">
+            <rect x="2" y="2" width="44" height="88" rx="4" fill="#E8B45F"/>
+            <rect x="46" y="2" width="44" height="88" rx="4" fill="#4E95CF"/>
+            <rect x="14" y="34" width="20" height="24" fill="#9BA996"/>
+            <rect x="58" y="34" width="20" height="24" fill="#9BA996"/>
+          </svg>
+          <h3>Interacción del color</h3>
+          <p>Ejercicios prácticos de Josef Albers: un color que parece dos, cinco que parecen seis y dos que parecen uno.</p>
+          <span class="home-go">Entrar →</span>
+        </button>
+      </div>
+
+      <p class="home-foot">Basado en <em>Kunst der Farbe</em> (El arte del color, 1961) de Johannes Itten y en <em>Interaction of Color</em> (1963) de Josef Albers. Funciona sin conexión.</p>
+    </div>
+  </section>
+
+  <!-- Barra superior -->
+  <div class="topbar">
+    <header class="app-header">
+      <button type="button" class="brand" id="brandBtn" aria-label="Estudio del color: volver al inicio">
+        <span class="brand-badge" aria-hidden="true">
+          <span style="background: #FFE600;"></span>
+          <span style="background: #E60000;"></span>
+          <span style="background: #0044BB;"></span>
+        </span>
+        <h1>Estudio del color</h1>
+      </button>
+
+      <div class="history-controls" data-hide-in="estrella interaccion">
         <button id="undoBtn" disabled title="Deshacer (Ctrl+Z)" aria-label="Deshacer">
           <span class="btn-icon" aria-hidden="true">↺</span><span class="btn-label">Deshacer</span>
         </button>
@@ -1212,15 +1926,18 @@
       <button id="moreBtn" class="more-btn" aria-label="Más opciones" aria-expanded="false" aria-controls="extraControls">⋯</button>
 
       <div class="extra-controls" id="extraControls">
-        <button id="toggleGridBtn" class="active">Cuadrícula: sí</button>
-        <button id="clearBtn">Vaciar</button>
+        <button id="homeBtn">⌂ Inicio</button>
+        <button id="toggleGridBtn" class="active" data-hide-in="estrella interaccion">Cuadrícula: sí</button>
+        <button id="clearBtn" data-hide-in="estrella interaccion">Vaciar</button>
         <button id="exportBtn" class="primary-action">Exportar PNG</button>
       </div>
     </header>
 
-    <div class="mode-bar">
-      <label for="exerciseSelect">Modo:</label>
-      <select id="exerciseSelect">
+    <div class="mode-bar" data-hide-in="estrella interaccion">
+      <label for="exerciseSelect" data-only="contrastes">Contraste:</label>
+      <label for="harmonySelect" data-only="armonias">Armonía:</label>
+      <select id="harmonySelect" data-only="armonias"></select>
+      <select id="exerciseSelect" data-only="contrastes">
         <option value="libre">Laboratorio libre</option>
         <option value="tono">Contraste de tono</option>
         <option value="valor">Contraste de valor</option>
@@ -1236,17 +1953,17 @@
   </div>
 
   <!-- Cuerpo principal -->
-  <main>
+  <main data-hide-in="estrella interaccion">
     <!-- Panel izquierdo: ficha y herramientas -->
     <aside class="panel">
       <div class="panel-section" id="sec-ficha">
         <div class="panel-title">
           <span>Fundamento teórico</span>
-          <span class="contrast-tag">Itten 1961</span>
+          <span class="contrast-tag" id="contrastTag">Itten 1961</span>
         </div>
         <div id="exerciseCard" class="exercise-card">
           <strong id="cardTitle">Laboratorio libre</strong>
-          <p id="cardDesc"></p>
+          <div id="cardDesc" class="card-desc"></div>
           <p id="cardNote" class="card-note" hidden></p>
         </div>
       </div>
@@ -1344,11 +2061,26 @@
         </div>
       </div>
 
+      <div class="panel-section" id="sec-paleta" data-only="armonias">
+        <div class="panel-title"><span>Paleta de la armonía</span></div>
+        <div class="harmony-base">
+          <button type="button" id="basePrevBtn" aria-label="Tono base anterior">◀</button>
+          <div class="harmony-base-info"><span>Tono base</span><strong id="baseToneName">Amarillo</strong></div>
+          <button type="button" id="baseNextBtn" aria-label="Tono base siguiente">▶</button>
+        </div>
+        <div class="harmony-palette" id="harmonyPalette"></div>
+        <label class="values-toggle"><input type="checkbox" id="paletteValuesToggle"> Con valores, del claro al oscuro</label>
+        <p class="palette-hint">Toca un color para pintar con él.</p>
+        <button type="button" id="imagePaletteBtn" class="accent-action">📷 Paleta desde imagen</button>
+        <button type="button" id="viewStarBtn">✶ Ver en la estrella</button>
+      </div>
+
       <div class="panel-section" id="sec-circulo">
         <div class="panel-title"><span>Círculo cromático de Itten (12 tonos)</span></div>
         <div class="wheel-container">
           <svg id="ittenWheelSvg" viewBox="-120 -120 240 240" role="group" aria-label="Círculo cromático de Itten"></svg>
-          <div class="wheel-hint">Toca o desliza el dedo sobre el círculo para elegir un tono</div>
+          <div class="wheel-hint" data-only="contrastes">Toca o desliza el dedo sobre el círculo para elegir un tono</div>
+          <div class="wheel-hint" data-only="armonias">Toca o desliza sobre el anillo para cambiar el tono base; la figura muestra la armonía</div>
         </div>
       </div>
 
@@ -1366,7 +2098,79 @@
     </aside>
   </main>
 
-  <footer>
+  <!-- Estrella de color -->
+  <section class="star-view" id="starView" data-only="estrella" aria-label="Estrella de color">
+    <div class="star-stage">
+      <svg id="starSvg" viewBox="-160 -160 320 320" tabindex="0" role="slider" aria-label="Disco de armonía: gíralo para elegir el tono base"></svg>
+    </div>
+
+    <div class="star-panel">
+      <div class="star-block">
+        <span class="star-title">Disco de armonía</span>
+        <select id="starMaskSelect" aria-label="Disco de armonía"></select>
+        <div class="harmony-base">
+          <button type="button" id="starPrevBtn" aria-label="Girar el disco hacia la izquierda">⟲</button>
+          <div class="harmony-base-info"><span>Tono base</span><strong id="starBaseName">Amarillo</strong></div>
+          <button type="button" id="starNextBtn" aria-label="Girar el disco hacia la derecha">⟳</button>
+        </div>
+        <p class="palette-hint">Arrastra el disco para girarlo o toca un tono de la estrella.</p>
+      </div>
+
+      <div class="star-block">
+        <span class="star-title">Lo que deja ver el disco</span>
+        <p class="star-what" id="starWhat"></p>
+        <div class="chord-scale" aria-hidden="true"><span>claro</span><span>puro</span><span>oscuro</span></div>
+        <div class="chord-rows" id="starChord"></div>
+      </div>
+
+      <button type="button" id="starPaintBtn" class="primary-action">Pintar con esta armonía</button>
+    </div>
+  </section>
+
+  <!-- Interacción del color: ejercicios de Josef Albers -->
+  <section class="star-view albers-view" id="albersView" data-only="interaccion" data-exercise="uno-dos" aria-label="Interacción del color">
+    <div class="star-stage albers-stage">
+      <svg id="albersSvg" viewBox="0 0 400 250" role="group" aria-label="Composición del ejercicio: toca un fondo o una banda para elegir su color"></svg>
+      <div class="albers-strip-wrap">
+        <div class="albers-strip" id="albersStrip" role="slider" tabindex="0" aria-label="Color de los cuadrados en la gradación entre los dos fondos"></div>
+        <div class="albers-strip-label"><span>Fondo A</span><span>Desliza para elegir el color de los cuadrados</span><span>Fondo B</span></div>
+      </div>
+      <div class="albers-actions">
+        <button type="button" id="albersDemoBtn" class="accent-action">✦ Cargar demostración</button>
+        <button type="button" id="albersClearBtn">Vaciar</button>
+      </div>
+    </div>
+
+    <div class="star-panel">
+      <div class="star-block">
+        <span class="star-title">Ejercicio</span>
+        <select id="albersExercise" aria-label="Ejercicio">
+          <option value="uno-dos">Un color parece dos</option>
+          <option value="cinco-seis">Cinco colores parecen seis</option>
+          <option value="dos-uno">Dos colores parecen uno</option>
+        </select>
+        <p class="star-what" id="albersWhat"></p>
+        <ol class="albers-steps" id="albersSteps"></ol>
+      </div>
+
+      <div class="star-block">
+        <span class="star-title">Colores</span>
+        <div class="albers-colors" id="albersColors"></div>
+        <p class="palette-hint">Toca un fondo o una banda, aquí o en la composición, para elegir su color.</p>
+      </div>
+
+      <div class="star-block">
+        <span class="star-title">Controles</span>
+        <label class="albers-range"><span>Empujar el fondo <b id="albersPushVal">0 %</b></span><input type="range" id="albersPush" min="0" max="45" value="0"></label>
+        <label class="albers-range" data-albers="dos-uno"><span>Diferencia entre los cuadrados <b id="albersDiffVal">12 %</b></span><input type="range" id="albersDiff" min="0" max="30" value="12"></label>
+        <button type="button" id="albersJoinBtn" class="primary-action" aria-pressed="false">Unir los cuadrados</button>
+      </div>
+
+      <p class="palette-hint">Mira fijamente unos segundos el punto donde se tocan los dos fondos: la ilusión se vuelve más fuerte. Basado en <em>Interaction of Color</em> (1963) de Josef Albers.</p>
+    </div>
+  </section>
+
+  <footer data-hide-in="estrella interaccion">
     <span>Estudio del color • Basado en <em>Kunst der Farbe</em> (El arte del color, 1961) de Johannes Itten.</span>
     <span id="canvasCellsCount">Celdas activas: 49 (7×7)</span>
   </footer>
@@ -1377,6 +2181,30 @@
     <span class="loupe-color" id="loupeColor"></span>
     <span class="loupe-hex" id="loupeHex"></span>
   </div>
+
+  <dialog id="imageDialog" class="color-dialog image-dialog" aria-labelledby="imgTitle">
+    <div class="cp" id="imageDrop">
+      <div class="cp-head">
+        <h2 id="imgTitle">Paleta desde imagen</h2>
+        <button type="button" class="cp-close" data-img-close aria-label="Cerrar">✕</button>
+      </div>
+      <p class="img-intro">Elige una fotografía o una pintura. La app extrae sus colores dominantes, los sitúa en el círculo de Itten y busca la armonía más cercana. La imagen no sale de tu dispositivo.</p>
+      <div class="img-actions">
+        <button type="button" id="imagePickBtn" class="primary-action">Elegir imagen</button>
+        <button type="button" id="imageSampleBtn">Probar con un ejemplo</button>
+        <input type="file" id="imageInput" accept="image/*" hidden>
+      </div>
+      <p class="img-drop" id="imageDropHint">En el computador también puedes arrastrar una imagen hasta aquí.</p>
+      <div class="img-results" id="imageResults" hidden>
+        <img class="img-preview" id="imagePreview" alt="Imagen analizada">
+        <div class="img-swatches" id="imageSwatches"></div>
+        <p class="img-diagnosis" id="imageDiagnosis"></p>
+        <div class="cp-actions">
+          <button type="button" id="imageApplyBtn" class="primary-action">Usar esta armonía</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
 
   <dialog id="colorDialog" class="color-dialog" aria-labelledby="cpTitle">
     <form class="cp" id="cpForm">
@@ -1448,62 +2276,164 @@
       "libre": {
         title: "Laboratorio libre",
         desc: "Compón libremente con los 12 tonos del círculo, los acromáticos y la gradación continua entre dos polos. Cada demostración muestra, al azar, uno de los siete contrastes.",
-        size: 7,
         c1: "#FFE600",
         c2: "#0044BB"
       },
       "tono": {
         title: "Contraste de tono",
         desc: "El contraste más elemental y contundente. Se logra yuxtaponiendo tonos puros, primarios y secundarios, en su máxima saturación. Cuanto más se alejan los tonos del amarillo, el rojo y el azul, más se debilita su fuerza.",
-        size: 5,
         c1: "#FFE600",
         c2: "#E60000"
       },
       "valor": {
         title: "Contraste de valor",
         desc: "Polaridad fundamental entre luz y sombra. Las gradaciones de un mismo tono, o del blanco al negro, modelan volumen, profundidad y atmósfera sin depender del matiz.",
-        size: 6,
         c1: "#FFF275",
         c2: "#190800"
       },
       "temperatura": {
         title: "Contraste de temperatura",
         desc: "Polaridad térmica: el rojo-naranja es el polo más cálido y el azul-verde, el más frío. Los cálidos parecen avanzar hacia el espectador y los fríos, retirarse, lo que genera profundidad.",
-        size: 7,
         c1: "#FF3300",
         c2: "#008899"
       },
       "complementarios": {
         title: "Contraste de complementarios",
         desc: "Dos tonos diametralmente opuestos en el círculo se exaltan mutuamente al yuxtaponerse y, mezclados en proporción equilibrada, se neutralizan en un gris. El centro de la gradación entre ambos polos muestra esa neutralización.",
-        size: 6,
         c1: "#FF6600",
         c2: "#0044BB"
       },
       "extensión": {
         title: "Contraste de extensión",
         desc: "Relación de áreas según la fuerza luminosa de cada color. Goethe asignó estos valores de luz: amarillo 9, naranja 8, rojo 6, verde 6, azul 4 y violeta 3. Para que dos colores se equilibren, sus áreas deben ser inversamente proporcionales a esos valores: el amarillo (9) necesita un tercio del área del violeta (3), es decir, una proporción 1:3.",
-        size: 8,
         c1: "#FFE600",
         c2: "#660099"
       },
       "saturación": {
         title: "Contraste de saturación",
         desc: "Oposición entre colores puros y saturados y sus versiones quebradas, apagadas o agrisadas. Basta un pequeño acento puro para hacer resonar todo un entorno neutro, y un tono apagado parece más vivo junto a otro aún más gris.",
-        size: 7,
         c1: "#660099",
         c2: "#808080"
       },
       "simultáneo": {
         title: "Contraste simultáneo",
         desc: "Ante un color puro, el ojo genera de forma simultánea su complementario y lo proyecta sobre las zonas neutras vecinas: un gris sobre rojo parece verdoso y, sobre verde, rojizo. El efecto crece cuando el gris tiene el mismo valor que el fondo.",
-        size: 7,
         c1: "#E60000",
         c2: "#808080"
       }
     };
 
     const DEMO_MODES = Object.keys(EXERCISES).filter(key => key !== "libre");
+
+    // Armonías: pasos sobre el círculo de 12 tonos contados desde el tono base
+    const HARMONIES = [
+      {
+        id: "complementaria", name: "Complementaria directa", source: "itten", steps: [0, 6],
+        what: "Dos tonos diametralmente opuestos en el círculo, a 180°.",
+        how: "Una recta que atraviesa el centro: los tonos están separados 6 posiciones en el círculo de 12.",
+        effect: "Es la concordancia más simple y la de mayor tensión: cada color exalta al otro y, mezclados, se neutralizan en un gris.",
+        use: "Para atraer la mirada con fuerza. Conviene que uno de los dos domine en extensión para evitar un choque estridente."
+      },
+      {
+        id: "triada", name: "Tríada equilátera", source: "itten", steps: [0, 4, 8],
+        what: "Tres tonos equidistantes que forman un triángulo equilátero, a 120° entre sí.",
+        how: "Saltos iguales de 4 posiciones. Desde el amarillo resulta la tríada primaria: amarillo, rojo y azul.",
+        effect: "Concordancia rotunda y estable: los tres tonos se sostienen sin reclamar un complementario ausente.",
+        use: "Composiciones enérgicas y claras. Funciona mejor si un tono domina y los otros dos acompañan."
+      },
+      {
+        id: "dividida", name: "Complementaria dividida", source: "itten", steps: [0, 5, 7],
+        what: "Un tono base y los dos vecinos de su complementario.",
+        how: "Triángulo isósceles: el vértice está en el tono base y los otros dos, a ambos lados del opuesto.",
+        effect: "Conserva la vibración de los complementarios con menos dureza que el par directo.",
+        use: "Cuando se busca contraste vivo con una paleta más matizada y flexible."
+      },
+      {
+        id: "cuadrado", name: "Tétrada cuadrada", source: "itten", steps: [0, 3, 6, 9],
+        what: "Cuatro tonos equidistantes que forman un cuadrado, a 90° entre sí.",
+        how: "Dos pares de complementarios perpendiculares, a saltos de 3 posiciones.",
+        effect: "Gran riqueza cromática en equilibrio: reúne cálidos y fríos en igual número.",
+        use: "Requiere una jerarquía clara, con un tono dominante, para que los cuatro no compitan."
+      },
+      {
+        id: "rectangulo", name: "Tétrada rectangular", source: "itten", steps: [0, 2, 6, 8],
+        what: "Dos pares de complementarios unidos por lados desiguales.",
+        how: "Un rectángulo inscrito en el círculo: saltos alternos de 2 y 4 posiciones.",
+        effect: "Combina la tensión de los complementarios con la cercanía de tonos vecinos.",
+        use: "Paletas ricas pero más suaves que el cuadrado; útil para atmósferas con luces y sombras."
+      },
+      {
+        id: "trapecio", name: "Tétrada en trapecio", source: "itten", steps: [0, 1, 5, 8],
+        what: "Dos tonos vecinos y, enfrente, los dos tonos que flanquean a sus complementarios.",
+        how: "Un trapecio isósceles inscrito: un lado corto (los dos vecinos) frente a un lado más largo.",
+        effect: "Menos simétrica que el rectángulo: genera una tensión con dirección.",
+        use: "Carteles y obras expresivas que quieren evitar simetrías evidentes."
+      },
+      {
+        id: "hexagono", name: "Hexágono (seis tonos)", source: "itten", steps: [0, 2, 4, 6, 8, 10],
+        what: "Seis tonos a igual distancia: tres pares de complementarios.",
+        how: "Un hexágono regular inscrito, a saltos de 2 posiciones. Desde el amarillo: los tres primarios y los tres secundarios.",
+        effect: "La totalidad del círculo en equilibrio, con gran riqueza y orden.",
+        use: "Sistemas que necesitan muchos colores ordenados: identidad visual, señalética o gráficos."
+      },
+      {
+        id: "monocromatica", name: "Monocromática", source: "otros", authors: "Lenguaje visual; Munsell", steps: [0],
+        what: "Un solo tono modulado en claridad y oscuridad.",
+        how: "Un único radio del círculo, aclarado hacia el blanco y oscurecido hacia el negro.",
+        effect: "Unidad total: todo el interés nace del contraste de valor.",
+        use: "Mensajes sobrios y legibles, carteles y packaging."
+      },
+      {
+        id: "analoga", name: "Análoga", source: "otros", authors: "A partir de Itten; Lenguaje visual", steps: [11, 0, 1],
+        what: "Tres tonos vecinos en el círculo.",
+        how: "Un arco de 60°: el tono base y sus dos vecinos.",
+        effect: "Comparten un mismo componente primario: transmiten calma y continuidad.",
+        use: "Fondos, atmósferas e interfaces serenas. Conviene variar el valor para que no resulte plana."
+      },
+      {
+        id: "alternos", name: "Colores alternos", source: "otros", authors: "Lenguaje visual", steps: [0, 2, 4],
+        what: "Tres tonos separados entre sí por un tono intermedio.",
+        how: "Saltos de 2 posiciones: tres vértices dentro de un arco de 120°.",
+        effect: "Más variedad que la análoga, sin la polaridad de la tríada.",
+        use: "Patrones, textiles e infografías con pasos diferenciados."
+      },
+      {
+        id: "doble_dividida", name: "Doble complementaria dividida", source: "otros", authors: "Cooper; Lenguaje visual", steps: [11, 1, 5, 7],
+        what: "Los dos vecinos del tono base y los dos vecinos de su complementario.",
+        how: "Un rectángulo estrecho que evita el eje del tono base y su opuesto.",
+        effect: "Dos diálogos complementarios suavizados: una superficie rica que no fatiga.",
+        use: "Pintura figurativa y paletas de marca sofisticadas."
+      },
+      {
+        id: "aproximada", name: "Complementaria aproximada", source: "otros", authors: "Wong; Arnheim", steps: [0, 5],
+        what: "Un tono y el vecino de su complementario, a 150°.",
+        how: "Una cuerda oblicua que no pasa por el centro del círculo.",
+        effect: "Tensión inestable: no se neutraliza en un gris, por eso Itten no la consideraba una concordancia.",
+        use: "Composiciones que buscan inquietud o que rechazan la simetría clásica."
+      },
+      {
+        id: "temperatura", name: "Armonía por temperatura", source: "otros", authors: "A partir de Itten; Kandinsky", steps: [11, 0, 1, 2],
+        what: "Cuatro tonos vecinos del mismo lado térmico del círculo.",
+        how: "Un arco continuo de cuatro tonos. Elige un tono base cálido (de amarillo a rojo) o frío (de violeta a verde).",
+        effect: "Los cálidos parecen avanzar y los fríos retroceder: la composición adquiere un clima térmico definido.",
+        use: "Atmósferas emocionales, iluminación y escenografía."
+      },
+      {
+        id: "analoga_acento", name: "Análoga con acento", source: "otros", authors: "Práctica del diseño contemporáneo", steps: [11, 0, 1, 6], accentStep: 6,
+        what: "Tres tonos vecinos y el complementario del central como acento.",
+        how: "Un arco de 60° más el tono opuesto, a 180° del tono base.",
+        effect: "La calma de los análogos cede todo el protagonismo al acento.",
+        use: "Destacar un único elemento: un botón, un foco de atención, un cartel."
+      },
+      {
+        id: "acromatica_acento", name: "Acromática con acento", source: "otros", authors: "Práctica del diseño contemporáneo", steps: [0],
+        what: "Blanco, grises y negro con un único tono puro.",
+        how: "El eje acromático combinado con un solo radio puro del círculo.",
+        effect: "Máximo contraste de saturación: el color gana una fuerza enorme sobre los neutros.",
+        use: "Fotografía, identidad visual de lujo y efectos dramáticos."
+      }
+    ];
+    const HARMONY_BY_ID = Object.fromEntries(HARMONIES.map(h => [h.id, h]));
 
     /* =========================================================================
        2. ESTADO GLOBAL DE LA APLICACIÓN
@@ -1532,6 +2462,14 @@
     // Última demostración por modo (para no repetirla) y último modo usado en el laboratorio libre
     const lastDemoSignature = {};
     let lastLibreMode = null;
+
+    // Sección activa ("contrastes" o "armonias") y armonía elegida
+    let appSection = "contrastes";
+    let harmonyId = "complementaria";
+    let baseToneIdx = 0;
+    let paletteValues = false;     // paleta de Armonías con los siete valores de cada tono
+    let starMaskOn = true;         // la estrella con disco o completa
+    let starRotation = 0;          // giro del disco en grados (30° por tono)
 
     /* =========================================================================
        3. ELEMENTOS DEL DOM
@@ -1580,6 +2518,13 @@
     const ittenWheelSvg = document.getElementById("ittenWheelSvg");
     const canvasCellsCount = document.getElementById("canvasCellsCount");
     const toast = document.getElementById("toast");
+    const home = document.getElementById("home");
+    const homeBtn = document.getElementById("homeBtn");
+    const brandBtn = document.getElementById("brandBtn");
+    const harmonySelect = document.getElementById("harmonySelect");
+    const contrastTag = document.getElementById("contrastTag");
+    const paletteEl = document.getElementById("harmonyPalette");
+    const baseToneName = document.getElementById("baseToneName");
 
     /* =========================================================================
        4. CONSTRUCCIÓN DEL CÍRCULO CROMÁTICO GEOMÉTRICO (SVG ITTEN)
@@ -1616,8 +2561,14 @@
           `A ${R_INNER} ${R_INNER} 0 0 0 ${R_INNER * Math.cos(a1)} ${R_INNER * Math.sin(a1)}`,
           "Z"
         ].join(" ");
-        addWheelFacet("path", { d, "stroke-width": "1.5" }, col.hex, col.name);
+        addWheelFacet("path", { d, "stroke-width": "1.5", "data-index": idx }, col.hex, col.name);
       });
+
+      // En Armonías, el centro muestra la figura geométrica de la armonía
+      if (appSection === "armonias") {
+        drawHarmonyGeometry(R_INNER);
+        return;
+      }
 
       const getCoord = deg => {
         const rad = deg * Math.PI / 180;
@@ -1638,6 +2589,47 @@
         { pts: [P_RED, P_BLU, CENTER], col: "#E60000", name: "Rojo" },
         { pts: [P_BLU, P_YEL, CENTER], col: "#0044BB", name: "Azul" }
       ].forEach(f => addWheelFacet("polygon", { points: toPoints(f.pts), "stroke-width": "1.5" }, f.col, f.name));
+    }
+
+    function svgEl(tag, attrs) {
+      const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+      Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+      el.style.pointerEvents = "none";
+      return el;
+    }
+
+    function drawHarmonyGeometry(rInner) {
+      const indices = harmonyIndices();
+      const R_NODE = rInner - 16;
+      ittenWheelSvg.appendChild(svgEl("circle", { cx: 0, cy: 0, r: rInner - 3, fill: "#14171f", stroke: "#2a3040", "stroke-width": 2 }));
+
+      // Se resaltan en el anillo los tonos que forman la armonía
+      indices.forEach(i => {
+        const facet = ittenWheelSvg.querySelector(`[data-index="${i}"]`);
+        if (!facet) return;
+        ittenWheelSvg.appendChild(facet);
+        facet.setAttribute("stroke", "#ffffff");
+        facet.setAttribute("stroke-width", i === baseToneIdx ? "4" : "2.5");
+      });
+
+      const point = i => {
+        const a = (i * 30 - 90) * Math.PI / 180;
+        return { x: R_NODE * Math.cos(a), y: R_NODE * Math.sin(a) };
+      };
+      const pts = [...indices].sort((a, b) => a - b).map(point);
+      const figure = { fill: "rgba(255, 255, 255, 0.08)", stroke: "#ffffff", "stroke-width": 2, "stroke-dasharray": "5 4", "stroke-linejoin": "round" };
+      if (pts.length === 2) {
+        ittenWheelSvg.appendChild(svgEl("line", { x1: pts[0].x, y1: pts[0].y, x2: pts[1].x, y2: pts[1].y, ...figure }));
+      } else if (pts.length > 2) {
+        ittenWheelSvg.appendChild(svgEl("polygon", { points: pts.map(p => `${p.x},${p.y}`).join(" "), ...figure }));
+      }
+      indices.forEach(i => {
+        const { x, y } = point(i);
+        ittenWheelSvg.appendChild(svgEl("circle", {
+          cx: x, cy: y, r: i === baseToneIdx ? 9 : 6.5,
+          fill: ITTEN_12[i].hex, stroke: "#ffffff", "stroke-width": i === baseToneIdx ? 3 : 2
+        }));
+      });
     }
 
     /* =========================================================================
@@ -1687,6 +2679,7 @@
     redoBtn.addEventListener("click", redo);
 
     window.addEventListener("keydown", e => {
+      if ((appSection === "estrella" || appSection === "interaccion") && e.key !== "Escape") return;
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
         e.preventDefault();
         if (e.shiftKey) redo();
@@ -2005,6 +2998,7 @@
       document.querySelectorAll(".quick-swatch").forEach(btn => {
         btn.classList.toggle("active", btn.dataset.color === currentColor);
       });
+      if (typeof syncPaletteActive === "function") syncPaletteActive();
     }
 
     function getComplementary(hex) {
@@ -2085,7 +3079,16 @@
       return target ? target.dataset[attr] : null;
     };
 
-    attachColorScrub(ittenWheelSvg, elementHexAt(ittenWheelSvg, "[data-hex]", "hex"));
+    attachColorScrub(ittenWheelSvg, (x, y) => {
+      const el = document.elementFromPoint(x, y);
+      const facet = el && ittenWheelSvg.contains(el) ? el.closest("[data-hex]") : null;
+      if (!facet) return null;
+      if (appSection === "armonias" && facet.dataset.index !== undefined) {
+        const idx = Number(facet.dataset.index);
+        if (idx !== baseToneIdx) setBaseTone(idx, false);
+      }
+      return facet.dataset.hex;
+    });
     attachColorScrub(swatchRow, elementHexAt(swatchRow, ".quick-swatch", "color"));
     attachColorScrub(blendCanvas, x => blendHexAt(x), "blend");
 
@@ -2311,8 +3314,9 @@
       const k = randInt(3, 5);
       const hues = shuffle(PURE_IDX).slice(0, k);
       const pal = hues.map(hueHex);
-      const layout = pick(["bloques", "franjas", "diagonales", "anillos", "cuadrantes"]);
-      let n = pick(GRID_SIZES);
+      // La demostración usa siempre la retícula elegida; la cruz central de los cuadrantes necesita un tamaño impar
+      const layout = pick(gridSize % 2 ? ["bloques", "franjas", "diagonales", "anillos", "cuadrantes"] : ["bloques", "franjas", "diagonales", "anillos"]);
+      const n = gridSize;
       let cells;
       let label;
 
@@ -2338,13 +3342,11 @@
         label = "diagonales";
       } else if (layout === "anillos") {
         const metric = pick(["square", "diamond"]);
-        n = randInt(metric === "square" ? Math.max(5, 2 * k - 1) : 5, 9);
         const c = (n - 1) / 2;
         cells = build(n, (x, y) => pal[Math.round(METRICS[metric](x - c, y - c)) % k]);
         label = `anillos concéntricos en ${SHAPE_LABEL[metric]}`;
       } else {
         // Cuatro cuadrantes separados por una cruz de otro tono
-        n = pick([5, 7, 9]);
         const c = (n - 1) / 2;
         const quad = k === 3 ? [0, 1, 1, 0] : k === 4 ? [0, 1, 2, 0] : shuffle([0, 1, 2, 3]);
         cells = build(n, (x, y) => {
@@ -2372,12 +3374,12 @@
       const base = baseIdx < 0 ? { h: 0, s: 0 } : rgbToHsl(...Object.values(hexToRgb(hueHex(baseIdx))));
       const scale = Array.from({ length: steps }, (_, s) => hslToHex(base.h, base.s, 0.93 - 0.83 * s / (steps - 1)));
       const layout = pick(["degradado", "diagonal", "concéntrico", "bloques"]);
-      let n;
+      const n = gridSize;
       let stepAt;
       let label;
 
       if (layout === "degradado") {
-        n = randInt(Math.max(5, steps), 9);
+        if (n < steps) return null;
         const dir = pick(["izquierda", "derecha", "arriba", "abajo"]);
         const tOf = {
           izquierda: (x) => x / (n - 1),
@@ -2388,7 +3390,6 @@
         stepAt = (x, y) => Math.round(tOf(x, y) * (steps - 1));
         label = `degradado lineal con la luz ${{ izquierda: "a la izquierda", derecha: "a la derecha", arriba: "arriba", abajo: "abajo" }[dir]}`;
       } else if (layout === "diagonal") {
-        n = randInt(5, 9);
         const corner = randInt(0, 3);
         stepAt = (x, y) => {
           const fx = corner & 1 ? n - 1 - x : x;
@@ -2397,7 +3398,6 @@
         };
         label = `degradado diagonal desde la esquina ${["superior izquierda", "superior derecha", "inferior izquierda", "inferior derecha"][corner]}`;
       } else if (layout === "concéntrico") {
-        n = randInt(6, 9);
         const metric = pick(["square", "diamond", "circle"]);
         const lightCenter = chance(0.5);
         const c = (n - 1) / 2;
@@ -2408,7 +3408,6 @@
         };
         label = `disposición concéntrica en ${SHAPE_LABEL[metric]}, con el centro ${lightCenter ? "claro" : "oscuro"}`;
       } else {
-        n = randInt(5, 9);
         const { rects, owner } = partition(n, steps + randInt(1, 3));
         if (rects.length < steps) return null;
         // Los bloques se ordenan según una dirección para que la escala siga leyéndose
@@ -2445,8 +3444,8 @@
       const warm = run(WARM_IDX, family ? randInt(2, 3) : 1).sort((a, b) => Math.abs(a - 3) - Math.abs(b - 3));
       const cool = run(COOL_IDX, family ? randInt(2, 3) : 1).sort((a, b) => Math.abs(a - 9) - Math.abs(b - 9));
       const warmIsFigure = chance(0.5);
-      const figure = pick(["centro", "mitad", "diagonal", "anillo"]);
-      const n = figure === "anillo" ? randInt(7, 9) : randInt(5, 9);
+      const figure = pick(gridSize >= 7 ? ["centro", "mitad", "diagonal", "anillo"] : ["centro", "mitad", "diagonal"]);
+      const n = gridSize;
       const c = (n - 1) / 2;
       let regionAt; // devuelve { inFig, depth } con depth en (0, 1]: 1 = lo más alejado del borde entre zonas
       let label;
@@ -2525,7 +3524,7 @@
       const A = hueHex(ia);
       const B = hueHex(ib);
       const layout = pick(["tablero", "rayas", "bloques", "figura"]);
-      const n = pick(GRID_SIZES);
+      const n = gridSize;
       let cells;
       let label;
       let variant;
@@ -2591,8 +3590,8 @@
     })();
 
     function demoExtensión() {
-      const pair = pick(EXTENSION_PAIRS);
-      const n = pick(pair.sizes);
+      const pair = pick(EXTENSION_PAIRS.filter(pr => pr.sizes.includes(gridSize)));
+      const n = gridSize;
       const [bright, dark] = GOETHE[pair.a] > GOETHE[pair.b] ? [pair.a, pair.b] : [pair.b, pair.a];
       const vBright = GOETHE[bright];
       const vDark = GOETHE[dark];
@@ -2663,7 +3662,7 @@
       const ramp = [pure];
       for (let s = 1; s <= levels; s++) ramp.push(mixHex(pure, gray, 0.3 + 0.62 * (s - 1) / (levels - 1)));
 
-      const n = randInt(5, 9);
+      const n = gridSize;
       const shape = pick(n >= 7 ? ["punto", "barra", "cruz"] : ["punto", "barra"]);
       const centered = n % 2 === 1 && chance(0.5);
       const px = centered ? (n - 1) / 2 : randInt(1, n - 2);
@@ -2694,11 +3693,11 @@
 
     // --- Contraste simultáneo: gris neutro sobre fondo puro (o el mismo gris sobre dos fondos) ---
     function demoSimultáneo() {
-      if (chance(0.6)) {
+      if (gridSize % 2 === 1 || chance(0.6)) {
         const bgIdx = randInt(0, 11);
         const bg = hueHex(bgIdx);
         const gray = grayOfSameValue(bg);
-        const n = randInt(5, 9);
+        const n = gridSize;
         const maxSide = Math.floor((n - 1) / 2);
         const shape = pick(n >= 7 ? ["cuadrado", "rectángulo", "cruz"] : ["cuadrado", "rectángulo"]);
         let w, h;
@@ -2730,7 +3729,7 @@
         };
       }
 
-      const n = pick([6, 8]);
+      const n = gridSize;
       const half = n / 2;
       const i = randInt(0, 11);
       const j = (i + pick([4, 5, 6, 7, 8])) % 12;
@@ -2759,6 +3758,86 @@
       };
     }
 
+    // --- Armonía: composición con un color dominante, secundarios y (si hay tres o más) un acento ---
+    function demoArmonia() {
+      const h = HARMONY_BY_ID[harmonyId];
+      const palette = harmonyPalette();
+      const nameOf = hex => palette.find(c => c.hex === hex).name.toLowerCase();
+      const colors = [...new Set(palette.map(c => c.hex))];
+      const k = colors.length;
+
+      // Acento: el que marca la armonía o uno al azar; dominante: el tono base la mitad de las veces
+      const flagged = palette.find(c => c.accent);
+      const accent = k >= 3 ? (flagged ? flagged.hex : pick(colors)) : null;
+      const candidates = colors.filter(c => c !== accent);
+      const baseHex = palette.find(c => c.base)?.hex;
+      const dominant = baseHex && baseHex !== accent && chance(0.5) ? baseHex : pick(candidates);
+      const middle = shuffle(candidates.filter(c => c !== dominant));
+
+      const n = gridSize;
+      const total = n * n;
+      const domShare = k === 1 ? 1 : k === 2 ? 0.62 + Math.random() * 0.16 : 0.48 + Math.random() * 0.14;
+      const accCount = accent ? Math.max(1, Math.round(total * (0.05 + Math.random() * 0.06))) : 0;
+      const domCount = Math.round(total * domShare);
+      let rest = total - domCount - accCount;
+      const counts = middle.map((_, i) => {
+        const c = i === middle.length - 1 ? rest : Math.max(1, Math.round(rest / (middle.length - i) * (0.8 + Math.random() * 0.4)));
+        rest -= c;
+        return c;
+      });
+      if (middle.length && counts.some(c => c < 1)) return null;
+      const runs = [[dominant, domCount], ...middle.map((c, i) => [c, counts[i]]), ...(accent ? [[accent, accCount]] : [])];
+
+      // Disposición: orden en que se reparten las celdas (lo primero es para el dominante)
+      const layout = pick(["concéntrica", "franjas", "diagonal", "sectores"]);
+      let keyOf;
+      if (layout === "concéntrica") {
+        const metric = pick(["square", "diamond", "circle"]);
+        const fx = randInt(1, n - 2);
+        const fy = randInt(1, n - 2);
+        keyOf = (x, y) => [-METRICS[metric](x - fx, y - fy), Math.atan2(y - fy, x - fx)];
+      } else if (layout === "franjas") {
+        const vertical = chance(0.5);
+        const flip = chance(0.5);
+        keyOf = (x, y) => {
+          const u = vertical ? x : y;
+          return [flip ? n - 1 - u : u, vertical ? y : x];
+        };
+      } else if (layout === "diagonal") {
+        const corner = randInt(0, 3);
+        keyOf = (x, y) => {
+          const fx = corner & 1 ? n - 1 - x : x;
+          const fy = corner & 2 ? n - 1 - y : y;
+          return [fx + fy, fx - fy];
+        };
+      } else {
+        const c = (n - 1) / 2;
+        const offset = Math.random() * Math.PI * 2;
+        keyOf = (x, y) => [(Math.atan2(y - c, x - c) - offset + Math.PI * 4) % (Math.PI * 2), Math.hypot(x - c, y - c)];
+      }
+
+      const order = build(n, (x, y) => ({ idx: y * n + x, key: keyOf(x, y) }))
+        .sort((a, b) => a.key[0] - b.key[0] || a.key[1] - b.key[1]);
+      const cells = Array(total);
+      let pos = 0;
+      runs.forEach(([hex, count]) => {
+        for (let i = 0; i < count; i++) cells[order[pos++].idx] = hex;
+      });
+
+      const pct = count => Math.round(count / total * 100);
+      const parts = [`${nameOf(dominant)} domina (${pct(domCount)} %)`];
+      if (middle.length) parts.push(`${listNames(middle.map(nameOf))} ${middle.length > 1 ? "acompañan" : "acompaña"}`);
+      if (accent) parts.push(`${nameOf(accent)} es el acento (${pct(accCount)} %)`);
+      return {
+        size: n,
+        cells,
+        c1: dominant,
+        c2: accent || middle[0] || dominant,
+        signature: `${h.id}|${baseToneIdx}|${layout}|${dominant}|${accent}`,
+        note: `${h.name}, disposición ${{ "concéntrica": "concéntrica", "franjas": "en franjas", "diagonal": "diagonal", "sectores": "en sectores" }[layout]}: ${parts.join("; ")}.`
+      };
+    }
+
     const DEMO_GENERATORS = {
       "tono": demoTono,
       "valor": demoValor,
@@ -2766,7 +3845,8 @@
       "complementarios": demoComplementarios,
       "extensión": demoExtensión,
       "saturación": demoSaturación,
-      "simultáneo": demoSimultáneo
+      "simultáneo": demoSimultáneo,
+      "armonía": demoArmonia
     };
 
     // Genera una demostración válida y distinta de la anterior del mismo modo
@@ -2794,18 +3874,26 @@
       cardNote.hidden = !html;
     }
 
+    function renderContrastCard() {
+      const ex = EXERCISES[exerciseSelect.value];
+      cardTitle.textContent = ex.title;
+      cardDesc.textContent = ex.desc;
+      contrastTag.textContent = "Itten 1961";
+      contrastTag.classList.remove("tag-otros");
+      setCardNote("");
+    }
+
     function loadExercise(key) {
       const ex = EXERCISES[key];
       if (!ex) return;
 
-      cardTitle.textContent = ex.title;
-      cardDesc.textContent = ex.desc;
-      setCardNote("");
+      renderContrastCard();
       setPoles(ex.c1, ex.c2);
       setCurrentColor(ex.c1);
 
+      // La retícula se vacía pero conserva el tamaño elegido
       pushHistory();
-      createGrid(ex.size);
+      createGrid(gridSize);
     }
 
     function applyDemo(demo) {
@@ -2818,6 +3906,12 @@
     exerciseSelect.addEventListener("change", e => loadExercise(e.target.value));
 
     loadDemoBtn.addEventListener("click", () => {
+      if (appSection === "armonias") {
+        const demo = generateDemo("armonía");
+        applyDemo(demo);
+        setCardNote(`<b>Demostración actual.</b> ${demo.note}`);
+        return;
+      }
       const key = exerciseSelect.value;
       if (key === "libre") {
         // En el laboratorio libre se elige al azar un modo distinto del anterior
@@ -2832,6 +3926,1260 @@
         applyDemo(demo);
         setCardNote(`<b>Demostración actual.</b> ${demo.note}`);
       }
+    });
+
+    /* --- Armonías --- */
+
+    function harmonyIndices() {
+      const h = HARMONY_BY_ID[harmonyId];
+      return h.steps.map(step => (baseToneIdx + step) % 12);
+    }
+
+    // Colores de la armonía activa: { hex, name, base, accent, index }
+    function harmonyPalette() {
+      const h = HARMONY_BY_ID[harmonyId];
+      const tone = ITTEN_12[baseToneIdx];
+      if (h.id === "monocromatica") {
+        const { h: hue, s } = rgbToHsl(...Object.values(hexToRgb(tone.hex)));
+        return [
+          { hex: hslToHex(hue, s, 0.88), name: `${tone.name} muy claro` },
+          { hex: hslToHex(hue, s, 0.7), name: `${tone.name} claro` },
+          { hex: tone.hex, name: `${tone.name} puro`, base: true, index: baseToneIdx },
+          { hex: hslToHex(hue, s, 0.3), name: `${tone.name} oscuro` },
+          { hex: hslToHex(hue, s, 0.15), name: `${tone.name} muy oscuro` }
+        ];
+      }
+      if (h.id === "acromatica_acento") {
+        return [
+          { hex: "#F2F2F2", name: "Blanco" },
+          { hex: "#808080", name: "Gris medio" },
+          { hex: "#1A1A1A", name: "Negro" },
+          { hex: tone.hex, name: tone.name, base: true, accent: true, index: baseToneIdx }
+        ];
+      }
+      return h.steps.map(step => {
+        const i = (baseToneIdx + step) % 12;
+        return { hex: ITTEN_12[i].hex, name: ITTEN_12[i].name, base: step === 0, accent: step === h.accentStep, index: i };
+      });
+    }
+
+    function buildHarmonySelect() {
+      [["itten", "Concordancias de Itten"], ["otros", "Otros autores"]].forEach(([source, label]) => {
+        const group = document.createElement("optgroup");
+        group.label = label;
+        HARMONIES.filter(h => h.source === source).forEach(h => group.appendChild(new Option(h.name, h.id)));
+        harmonySelect.appendChild(group);
+      });
+      harmonySelect.value = harmonyId;
+    }
+
+    function renderHarmonyCard() {
+      const h = HARMONY_BY_ID[harmonyId];
+      cardTitle.textContent = `${h.name} · ${ITTEN_12[baseToneIdx].name.toLowerCase()}`;
+      contrastTag.textContent = h.source === "itten" ? "Itten" : "Otros autores";
+      contrastTag.classList.toggle("tag-otros", h.source !== "itten");
+      cardDesc.replaceChildren();
+      const source = document.createElement("p");
+      source.className = "source-line";
+      source.textContent = h.source === "itten"
+        ? "Concordancia descrita por Johannes Itten en Kunst der Farbe (1961)."
+        : `Fuente: ${h.authors}.`;
+      cardDesc.appendChild(source);
+      [["¿Qué es?", h.what], ["Construcción", h.how], ["Efecto", h.effect], ["Uso", h.use]].forEach(([title, text]) => {
+        const h4 = document.createElement("h4");
+        h4.textContent = title;
+        const para = document.createElement("p");
+        para.textContent = text;
+        cardDesc.append(h4, para);
+      });
+    }
+
+    function renderHarmonyPalette() {
+      paletteEl.replaceChildren();
+      const withValues = paletteValues && !["monocromatica", "acromatica_acento"].includes(harmonyId);
+      paletteEl.classList.toggle("with-values", withValues);
+      if (withValues) {
+        renderChordRows(paletteEl, harmonyPalette());
+        baseToneName.textContent = ITTEN_12[baseToneIdx].name;
+        syncPaletteActive();
+        return;
+      }
+      harmonyPalette().forEach(color => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "harmony-swatch";
+        btn.dataset.color = color.hex;
+        btn.setAttribute("aria-label", `Pintar con ${color.name} (${color.hex})`);
+        const chip = document.createElement("i");
+        chip.style.backgroundColor = color.hex;
+        const name = document.createElement("span");
+        name.textContent = color.base ? `${color.name} · base` : color.accent ? `${color.name} · acento` : color.name;
+        const code = document.createElement("code");
+        code.textContent = color.hex;
+        btn.append(chip, name, code);
+        btn.addEventListener("click", () => setCurrentColor(color.hex));
+        paletteEl.appendChild(btn);
+      });
+      baseToneName.textContent = ITTEN_12[baseToneIdx].name;
+      syncPaletteActive();
+    }
+
+    function syncPaletteActive() {
+      document.querySelectorAll("#harmonyPalette [data-color], #starChord [data-color]").forEach(btn => {
+        btn.classList.toggle("is-current", btn.dataset.color === currentColor);
+      });
+    }
+
+    // Siete valores de un tono: tres aclarados, el puro y tres oscurecidos
+    const VALUE_NAMES = ["muy claro", "claro", "algo claro", "puro", "algo oscuro", "oscuro", "muy oscuro"];
+    function valueScale(hex) {
+      return [
+        mixHex(hex, "#FFFFFF", 0.78), mixHex(hex, "#FFFFFF", 0.55), mixHex(hex, "#FFFFFF", 0.3),
+        hex.toUpperCase(),
+        mixHex(hex, "#000000", 0.28), mixHex(hex, "#000000", 0.5), mixHex(hex, "#000000", 0.7)
+      ];
+    }
+
+    // Una fila por tono con sus siete valores; tocar un valor lo vuelve el color del pincel
+    function renderChordRows(container, colors) {
+      colors.forEach(color => {
+        const row = document.createElement("div");
+        row.className = "chord-row";
+        const label = document.createElement("span");
+        label.className = "chord-name";
+        const strong = document.createElement("b");
+        strong.textContent = color.name;
+        label.append(strong, color.base ? " · tono base" : color.accent ? " · acento" : "");
+        const chips = document.createElement("div");
+        chips.className = "chord-chips";
+        valueScale(color.hex).forEach((hex, k) => {
+          const chip = document.createElement("button");
+          chip.type = "button";
+          chip.className = k === 3 ? "chord-chip pure" : "chord-chip";
+          chip.style.backgroundColor = hex;
+          chip.dataset.color = hex;
+          chip.title = `${color.name} ${VALUE_NAMES[k]} · ${hex}`;
+          chip.setAttribute("aria-label", `${color.name} ${VALUE_NAMES[k]} (${hex})`);
+          chip.addEventListener("click", () => setCurrentColor(hex));
+          chips.appendChild(chip);
+        });
+        row.append(label, chips);
+        container.appendChild(row);
+      });
+    }
+
+    // Polos de la gradación: el tono base y el color de la paleta más alejado en el círculo
+    function harmonyPoles() {
+      const palette = harmonyPalette();
+      const h = HARMONY_BY_ID[harmonyId];
+      if (h.id === "monocromatica") return [palette[0].hex, palette[palette.length - 1].hex];
+      if (h.id === "acromatica_acento") return [ITTEN_12[baseToneIdx].hex, "#808080"];
+      const dist = i => Math.min(Math.abs(i - baseToneIdx), 12 - Math.abs(i - baseToneIdx));
+      const far = palette.reduce((best, c) => dist(c.index) > dist(best.index) ? c : best, palette[0]);
+      return [ITTEN_12[baseToneIdx].hex, far.hex];
+    }
+
+    function renderHarmony(updateColors) {
+      renderHarmonyCard();
+      renderHarmonyPalette();
+      buildIttenWheel();
+      setCardNote("");
+      if (updateColors) {
+        const [a, b] = harmonyPoles();
+        setPoles(a, b);
+        setCurrentColor(ITTEN_12[baseToneIdx].hex);
+      }
+    }
+
+    function setBaseTone(idx, updateBrush = true) {
+      baseToneIdx = (idx + 12) % 12;
+      renderHarmonyCard();
+      renderHarmonyPalette();
+      buildIttenWheel();
+      setCardNote("");
+      const [a, b] = harmonyPoles();
+      setPoles(a, b);
+      if (updateBrush) setCurrentColor(ITTEN_12[baseToneIdx].hex);
+    }
+
+    harmonySelect.addEventListener("change", () => {
+      harmonyId = harmonySelect.value;
+      renderHarmony(true);
+    });
+    document.getElementById("basePrevBtn").addEventListener("click", () => setBaseTone(baseToneIdx - 1));
+    document.getElementById("baseNextBtn").addEventListener("click", () => setBaseTone(baseToneIdx + 1));
+
+    const paletteValuesToggle = document.getElementById("paletteValuesToggle");
+    paletteValuesToggle.addEventListener("change", () => {
+      paletteValues = paletteValuesToggle.checked;
+      renderHarmonyPalette();
+    });
+    document.getElementById("viewStarBtn").addEventListener("click", () => enterSection("estrella"));
+
+    /* --- Estrella de color: 12 puntas × 7 valores y disco giratorio con ventanas --- */
+
+    const starSvg = document.getElementById("starSvg");
+    const starMaskSelect = document.getElementById("starMaskSelect");
+    const starChord = document.getElementById("starChord");
+    const STAR = { CENTER: 16, RINGS: [16, 40, 64, 88, 110], TIP: 156, DISC: 158 };
+    const SHADE_STEPS = [0, 0.38, 0.7, 1];
+    const STAR_HARMONIES = HARMONIES.filter(h => h.id !== "acromatica_acento");
+
+    const polar = (r, deg) => {
+      const a = deg * Math.PI / 180;
+      return [r * Math.cos(a), r * Math.sin(a)];
+    };
+    const lerp = (p, q, t) => [p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t];
+    const polyD = pts => `M ${pts.map(pt => `${pt[0].toFixed(2)} ${pt[1].toFixed(2)}`).join(" L ")} Z`;
+    const hueAngle = i => i * 30 - 90;
+
+    // Celdas de la estrella: centro blanco, tres anillos claros, el puro y tres bandas oscuras en las puntas
+    function starCells() {
+      const cells = [];
+      ITTEN_12.forEach((tone, i) => {
+        const values = valueScale(tone.hex);
+        const a = hueAngle(i);
+        for (let k = 0; k < 4; k++) {
+          const r1 = STAR.RINGS[k];
+          const r2 = STAR.RINGS[k + 1];
+          cells.push({ fill: values[k], pts: [polar(r1, a - 15), polar(r2, a - 15), polar(r2, a + 15), polar(r1, a + 15)] });
+        }
+        const A = polar(STAR.RINGS[4], a - 15);
+        const B = polar(STAR.RINGS[4], a + 15);
+        const T = polar(STAR.TIP, a);
+        for (let j = 0; j < 3; j++) {
+          const t1 = SHADE_STEPS[j];
+          const t2 = SHADE_STEPS[j + 1];
+          cells.push({ fill: values[4 + j], pts: [lerp(A, T, t1), lerp(B, T, t1), lerp(B, T, t2), lerp(A, T, t2)] });
+        }
+      });
+      return cells;
+    }
+
+    // Ventana del disco para un tono: el rayo completo, del centro a la punta
+    function starWindow(i, rotation) {
+      const a = hueAngle(i) + rotation;
+      return [polar(STAR.CENTER, a - 15), polar(STAR.RINGS[4], a - 15), polar(STAR.TIP, a), polar(STAR.RINGS[4], a + 15), polar(STAR.CENTER, a + 15)];
+    }
+
+    function starCenterPoly() {
+      return Array.from({ length: 12 }, (_, i) => polar(STAR.CENTER, hueAngle(i) + 15));
+    }
+
+    // Trazado del disco: círculo con agujeros (centro y ventanas), relleno con la regla par-impar
+    function discPath(steps, rotation) {
+      const circle = `M ${STAR.DISC} 0 A ${STAR.DISC} ${STAR.DISC} 0 1 0 ${-STAR.DISC} 0 A ${STAR.DISC} ${STAR.DISC} 0 1 0 ${STAR.DISC} 0 Z`;
+      return [circle, polyD(starCenterPoly()), ...steps.map(step => polyD(starWindow(step, rotation)))].join(" ");
+    }
+
+    function buildStarSvg(svg, steps, rotation, withDisc) {
+      const ns = "http://www.w3.org/2000/svg";
+      svg.replaceChildren();
+      const add = (tag, attrs) => {
+        const el = document.createElementNS(ns, tag);
+        Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+        svg.appendChild(el);
+        return el;
+      };
+      starCells().forEach(cell => add("path", { d: polyD(cell.pts), fill: cell.fill, stroke: "#0d0f12", "stroke-width": 0.6 }));
+      add("path", { d: polyD(starCenterPoly()), fill: "#FFFFFF", stroke: "#0d0f12", "stroke-width": 0.6 });
+      if (!withDisc) return;
+      add("path", { d: discPath(steps, rotation), fill: "#0d0f12", "fill-opacity": 0.93, "fill-rule": "evenodd", stroke: "#3a4256", "stroke-width": 1.5, class: "star-disc" });
+      steps.forEach((step, n) => {
+        add("path", { d: polyD(starWindow(step, rotation)), fill: "none", stroke: "#ffffff", "stroke-width": n === 0 ? 2.5 : 1.2, "stroke-linejoin": "round", class: "star-window" });
+      });
+      // Muesca que marca el tono base en el borde del disco
+      const notch = polar(STAR.DISC - 6, hueAngle(0) + rotation);
+      add("circle", { cx: notch[0], cy: notch[1], r: 4, fill: "#ffffff", class: "star-notch" });
+    }
+
+    function currentStarSteps() {
+      return starMaskOn ? HARMONY_BY_ID[harmonyId].steps : [];
+    }
+
+    // Solo redibuja el disco al girarlo (las celdas de la estrella no cambian)
+    function updateStarDisc() {
+      const steps = currentStarSteps();
+      const disc = starSvg.querySelector(".star-disc");
+      if (!disc) return;
+      disc.setAttribute("d", discPath(steps, starRotation));
+      starSvg.querySelectorAll(".star-window").forEach((el, n) => el.setAttribute("d", polyD(starWindow(steps[n], starRotation))));
+      const notch = polar(STAR.DISC - 6, hueAngle(0) + starRotation);
+      const notchEl = starSvg.querySelector(".star-notch");
+      notchEl.setAttribute("cx", notch[0]);
+      notchEl.setAttribute("cy", notch[1]);
+    }
+
+    function renderStar() {
+      starMaskSelect.value = starMaskOn ? harmonyId : "ninguno";
+      starRotation = baseToneIdx * 30;
+      buildStarSvg(starSvg, currentStarSteps(), starRotation, starMaskOn);
+      renderStarPanel();
+    }
+
+    function renderStarPanel() {
+      const tone = ITTEN_12[baseToneIdx];
+      document.getElementById("starBaseName").textContent = tone.name;
+      starSvg.setAttribute("aria-valuetext", `Tono base: ${tone.name.toLowerCase()}`);
+      starChord.replaceChildren();
+      const starWhat = document.getElementById("starWhat");
+      const paintBtn = document.getElementById("starPaintBtn");
+      if (!starMaskOn) {
+        starWhat.textContent = "Sin disco se ven los 12 tonos en sus siete valores. Elige un disco para aislar una armonía.";
+        paintBtn.disabled = true;
+        return;
+      }
+      const h = HARMONY_BY_ID[harmonyId];
+      starWhat.textContent = `${h.name}: ${h.what.charAt(0).toLowerCase()}${h.what.slice(1)}`;
+      paintBtn.disabled = false;
+      renderChordRows(starChord, harmonyPalette());
+      syncPaletteActive();
+    }
+
+    function setStarBase(idx) {
+      baseToneIdx = (idx + 12) % 12;
+      renderStarPanel();
+    }
+
+    // Giro animado hasta el tono indicado (por el camino más corto)
+    let starAnimation = 0;
+    function rotateStarTo(idx) {
+      const target = starRotation + ((((idx * 30 - starRotation) % 360) + 540) % 360 - 180);
+      setStarBase(idx);
+      if (!starMaskOn) return;
+      const from = starRotation;
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      // Sin animación si se pide menos movimiento o la página no está a la vista
+      if (reduce || document.hidden) {
+        starRotation = target;
+        updateStarDisc();
+        return;
+      }
+      const token = ++starAnimation;
+      const start = performance.now();
+      const step = now => {
+        if (token !== starAnimation) return;
+        const t = Math.min(1, (now - start) / 180);
+        starRotation = from + (target - from) * (1 - (1 - t) ** 3);
+        updateStarDisc();
+        if (t < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+      // Respaldo: si el navegador no anima, el disco llega igual a su sitio
+      setTimeout(() => {
+        if (token === starAnimation && starRotation !== target) {
+          starRotation = target;
+          updateStarDisc();
+        }
+      }, 260);
+    }
+
+    function buildStarMaskSelect() {
+      starMaskSelect.appendChild(new Option("Sin disco (estrella completa)", "ninguno"));
+      [["itten", "Concordancias de Itten"], ["otros", "Otros autores"]].forEach(([source, label]) => {
+        const group = document.createElement("optgroup");
+        group.label = label;
+        STAR_HARMONIES.filter(h => h.source === source).forEach(h => group.appendChild(new Option(h.name, h.id)));
+        starMaskSelect.appendChild(group);
+      });
+    }
+
+    starMaskSelect.addEventListener("change", () => {
+      starMaskOn = starMaskSelect.value !== "ninguno";
+      if (starMaskOn) {
+        harmonyId = starMaskSelect.value;
+        harmonySelect.value = harmonyId;
+      }
+      renderStar();
+    });
+    document.getElementById("starPrevBtn").addEventListener("click", () => rotateStarTo(baseToneIdx - 1));
+    document.getElementById("starNextBtn").addEventListener("click", () => rotateStarTo(baseToneIdx + 1));
+    starSvg.addEventListener("keydown", e => {
+      const delta = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 }[e.key];
+      if (delta === undefined) return;
+      e.preventDefault();
+      rotateStarTo(baseToneIdx + delta);
+    });
+
+    // Arrastrar gira el disco; tocar sin arrastrar lleva el tono base al tono tocado
+    (function attachStarDrag() {
+      let drag = null;
+      const pointerAngle = e => {
+        const rect = starSvg.getBoundingClientRect();
+        return Math.atan2(e.clientY - (rect.top + rect.height / 2), e.clientX - (rect.left + rect.width / 2)) * 180 / Math.PI;
+      };
+      starSvg.addEventListener("pointerdown", e => {
+        if (!e.isPrimary || (e.pointerType === "mouse" && e.button !== 0)) return;
+        e.preventDefault();
+        capturePointer(starSvg, e.pointerId);
+        drag = { x: e.clientX, y: e.clientY, angle: pointerAngle(e), rotation: starRotation, moved: false };
+      });
+      starSvg.addEventListener("pointermove", e => {
+        if (!drag || !e.isPrimary) return;
+        if (!drag.moved && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 6) return;
+        drag.moved = true;
+        starSvg.classList.add("dragging");
+        if (!starMaskOn) return;
+        let delta = pointerAngle(e) - drag.angle;
+        if (delta > 180) delta -= 360;
+        if (delta < -180) delta += 360;
+        drag.angle = pointerAngle(e);
+        drag.rotation += delta;
+        starRotation = drag.rotation;
+        updateStarDisc();
+        const nearest = ((Math.round(starRotation / 30) % 12) + 12) % 12;
+        if (nearest !== baseToneIdx) setStarBase(nearest);
+      });
+      const end = e => {
+        if (!drag) return;
+        starSvg.classList.remove("dragging");
+        if (drag.moved) {
+          rotateStarTo(((Math.round(starRotation / 30) % 12) + 12) % 12);
+        } else if (e.type === "pointerup") {
+          // Tono tocado según el ángulo desde el centro
+          const rect = starSvg.getBoundingClientRect();
+          const dist = Math.hypot(e.clientX - (rect.left + rect.width / 2), e.clientY - (rect.top + rect.height / 2));
+          if (dist > rect.width / 320 * STAR.CENTER) {
+            const idx = ((Math.round((pointerAngle(e) + 90) / 30) % 12) + 12) % 12;
+            rotateStarTo(idx);
+          }
+        }
+        drag = null;
+      };
+      starSvg.addEventListener("pointerup", end);
+      starSvg.addEventListener("pointercancel", end);
+      starSvg.addEventListener("contextmenu", e => e.preventDefault());
+    })();
+
+    document.getElementById("starPaintBtn").addEventListener("click", () => {
+      paletteValues = true;
+      paletteValuesToggle.checked = true;
+      harmonySelect.value = harmonyId;
+      enterSection("armonias");
+    });
+
+    // Exportación de la estrella con el disco en su posición actual
+    function exportStarPng() {
+      const size = 1000;
+      const scale = 880 / 320;
+      const cx = size / 2;
+      const cy = 40 + 440;
+      const h = HARMONY_BY_ID[harmonyId];
+      const colors = starMaskOn ? harmonyPalette() : [];
+      const rotation = baseToneIdx * 30;
+      const rowH = 34;
+      const canvas = document.createElement("canvas");
+      canvas.width = size;
+      canvas.height = 960 + 120 + colors.length * rowH + 30;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const toCanvas = ([x, y]) => [cx + x * scale, cy + y * scale];
+      const fillPoly = (pts, color) => {
+        ctx.beginPath();
+        pts.map(toCanvas).forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+        ctx.closePath();
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.strokeStyle = "#0d0f12";
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+      };
+      starCells().forEach(cell => fillPoly(cell.pts, cell.fill));
+      fillPoly(starCenterPoly(), "#FFFFFF");
+
+      if (starMaskOn) {
+        const disc = new Path2D();
+        disc.arc(cx, cy, STAR.DISC * scale, 0, Math.PI * 2);
+        [starCenterPoly(), ...h.steps.map(step => starWindow(step, rotation))].forEach(poly => {
+          poly.map(toCanvas).forEach(([x, y], i) => (i ? disc.lineTo(x, y) : disc.moveTo(x, y)));
+          disc.closePath();
+        });
+        ctx.fillStyle = "rgba(13, 15, 18, 0.93)";
+        ctx.fill(disc, "evenodd");
+        h.steps.forEach((step, n) => {
+          ctx.beginPath();
+          starWindow(step, rotation).map(toCanvas).forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+          ctx.closePath();
+          ctx.strokeStyle = "#ffffff";
+          ctx.lineWidth = n === 0 ? 5 : 2.5;
+          ctx.stroke();
+        });
+      }
+
+      const font = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+      const title = starMaskOn ? `${h.name} · tono base ${ITTEN_12[baseToneIdx].name.toLowerCase()}` : "Estrella completa";
+      ctx.fillStyle = "#111827";
+      ctx.font = `bold 24px ${font}`;
+      ctx.fillText("ESTUDIO DEL COLOR · ESTRELLA DE COLOR", 60, 990);
+      ctx.font = `18px ${font}`;
+      ctx.fillStyle = "#1f2937";
+      ctx.fillText(title, 60, 1022);
+      ctx.font = `15px ${font}`;
+      ctx.fillStyle = "#64748b";
+      ctx.fillText("Según Johannes Itten, Kunst der Farbe (El arte del color, 1961)", 60, 1050);
+
+      // Tonos visibles con sus siete valores
+      colors.forEach((color, r) => {
+        const y = 1080 + r * rowH;
+        ctx.font = `600 14px ${font}`;
+        ctx.fillStyle = "#1f2937";
+        ctx.fillText(color.name, 60, y + 18);
+        valueScale(color.hex).forEach((hex, k) => {
+          ctx.fillStyle = hex;
+          ctx.fillRect(260 + k * 40, y, 34, 24);
+          ctx.strokeStyle = "rgba(0, 0, 0, 0.18)";
+          ctx.lineWidth = 1;
+          ctx.strokeRect(260 + k * 40, y, 34, 24);
+        });
+        ctx.font = "600 13px ui-monospace, Menlo, Consolas, monospace";
+        ctx.fillText(color.hex, 260 + 7 * 40 + 12, y + 17);
+      });
+
+      const slug = title.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Za-z0-9]+/g, "_").replace(/^_|_$/g, "");
+      savePng(canvas.toDataURL("image/png"), `Estudio_del_color_Estrella_${slug}_${Date.now()}.png`);
+    }
+
+    /* --- Interacción del color: ejercicios de Josef Albers --- */
+
+    const albersView = document.getElementById("albersView");
+    const albersSvg = document.getElementById("albersSvg");
+    const albersStrip = document.getElementById("albersStrip");
+    const albersExercise = document.getElementById("albersExercise");
+    const albersPush = document.getElementById("albersPush");
+    const albersDiff = document.getElementById("albersDiff");
+    const albersJoinBtn = document.getElementById("albersJoinBtn");
+
+    const ALBERS_EXERCISES = {
+      "uno-dos": {
+        what: "Un mismo color, sobre dos fondos distintos, parece dos colores. Cada fondo le resta al cuadrado su propia luz y su propio tono: sobre un fondo claro el cuadrado se ve más oscuro y, sobre uno cálido, más frío. Es el contraste simultáneo que estudió Josef Albers.",
+        steps: [
+          "Toca el fondo A y el fondo B para elegir sus colores, o pulsa «Cargar demostración».",
+          "Toma el color de los cuadrados del centro de la gradación: Albers lo llama buscar el color medio.",
+          "Mira fijamente el punto donde se tocan los fondos.",
+          "Pulsa «Unir los cuadrados» para comprobar que son el mismo color.",
+          "Empuja el fondo hacia el centro para que cada cuadrado se parezca al fondo contrario."
+        ]
+      },
+      "cinco-seis": {
+        what: "Una franja de un solo color cruza los dos fondos y queda tapada en el centro por dos bandas. Sus dos partes visibles parecen colores distintos: cinco colores se ven como seis.",
+        steps: [
+          "Toca los dos fondos y las dos bandas para elegir sus colores, o pulsa «Cargar demostración».",
+          "Toma el color de la franja del centro de la gradación entre los fondos A y B.",
+          "Compara las dos partes visibles de la franja: una parece más clara que la otra.",
+          "Pulsa «Unir la franja» para traerla al frente y ver que es un solo color."
+        ]
+      },
+      "dos-uno": {
+        what: "El ejercicio inverso: dos colores distintos, cada uno sobre el fondo adecuado, pueden parecer el mismo. Cada cuadrado se acerca un poco a su propio fondo para compensar lo que ese fondo le resta.",
+        steps: [
+          "Toca el fondo A y el fondo B para elegir sus colores, o pulsa «Cargar demostración».",
+          "Ajusta la «Diferencia entre los cuadrados» hasta que los dos parezcan iguales.",
+          "Mueve el color medio en la gradación si hace falta.",
+          "Pulsa «Unir los cuadrados» para descubrir que son dos colores distintos."
+        ]
+      }
+    };
+
+    // Combinaciones de ejemplo elegidas a mano: fondos algo apagados, que suelen funcionar mejor que los muy saturados
+    const ALBERS_PRESETS = [
+      // Complementarios: el cuadrado se tiñe del color opuesto a cada fondo
+      { name: "Naranja y azul", A: "#E8B45F", B: "#4E95CF", C: "#E39A3B", D: "#34338F" },
+      { name: "Durazno y azul", A: "#E8C1A0", B: "#5A9FD6" },
+      { name: "Rojo y verde", A: "#C9474F", B: "#5AA765" },
+      { name: "Rosa y verde agua", A: "#D27682", B: "#76C3AE" },
+      { name: "Amarillo y violeta", A: "#E9D36A", B: "#6D4C93" },
+      { name: "Amarillo anaranjado y azul violáceo", A: "#EDB95A", B: "#5357A6" },
+      { name: "Coral y turquesa", A: "#E58A72", B: "#4FA9A6" },
+      { name: "Magenta suave y verde lima", A: "#B85A8C", B: "#A9C45A" },
+      { name: "Rojo anaranjado y azul verdoso", A: "#D9643F", B: "#3E8E8C" },
+      // Cálido y frío
+      { name: "Ocre y azul pizarra", A: "#C9A04E", B: "#5B7290" },
+      { name: "Terracota y verde salvia", A: "#B8664A", B: "#8FA98A" },
+      { name: "Mostaza y lavanda", A: "#CFAE3E", B: "#9C8FC4" },
+      { name: "Ladrillo y gris azulado", A: "#A9544A", B: "#7F93A8" },
+      // Claro y oscuro: cada fondo le resta su luz al cuadrado
+      { name: "Claro y oscuro", A: "#E9E3D2", B: "#3A3F5C" },
+      { name: "Crema y azul noche", A: "#EFE4C8", B: "#283A5E" },
+      { name: "Arena y chocolate", A: "#E2CFA8", B: "#5B3A2A" },
+      { name: "Rosa pálido y burdeos", A: "#F0CFD2", B: "#6E2337" },
+      { name: "Celeste y azul marino", A: "#BFDCEB", B: "#1F3A66" },
+      { name: "Menta y verde bosque", A: "#CDE8D3", B: "#2D5A3D" },
+      { name: "Lila y berenjena", A: "#D9CBE6", B: "#4A2C55" },
+      { name: "Grises", A: "#D8D8D8", B: "#4A4A4A" },
+      // Vivo y apagado: el fondo intenso le resta saturación al cuadrado
+      { name: "Naranja vivo y beige", A: "#F07A1A", B: "#CDBBA3" },
+      { name: "Azul vivo y gris azulado", A: "#2F6FD6", B: "#9AA6B8" },
+      { name: "Verde vivo y verde gris", A: "#3FAE49", B: "#A3AD9C" },
+      { name: "Amarillo limón y gris cálido", A: "#E9DE3C", B: "#8E8775" },
+      { name: "Rosa y gris", A: "#E46C9A", B: "#9A9A9A" }
+    ];
+
+    // La sección empieza en blanco: ningún color elegido
+    const albers = { exercise: "uno-dos", A: null, B: null, C: null, D: null, t: 0.5, push: 0, diff: 0.12, joined: false };
+    const ALBERS_LABELS = { A: "Fondo A", B: "Fondo B", C: "Banda A", D: "Banda B" };
+    let albersDeck = [];
+    let lastAlbersDemo = -1;
+
+    // Bandas del ejercicio de cinco colores: versiones más intensas y oscuras de cada fondo
+    function deriveBand(hex, dl, ds) {
+      const { h, s, l } = rgbToHsl(...Object.values(hexToRgb(hex)));
+      return hslToHex(h, Math.min(1, s + ds), Math.max(0.08, Math.min(0.92, l + dl)));
+    }
+
+    function applyAlbersPreset(preset) {
+      albers.A = preset.A;
+      albers.B = preset.B;
+      albers.C = preset.C || deriveBand(preset.A, -0.1, 0.15);
+      albers.D = preset.D || deriveBand(preset.B, -0.22, 0.1);
+      albers.t = 0.5;
+      albers.push = 0;
+      albers.joined = false;
+    }
+
+    function clearAlbers() {
+      albers.A = albers.B = albers.C = albers.D = null;
+      albers.t = 0.5;
+      albers.push = 0;
+      albers.joined = false;
+    }
+
+    const albersReady = () => Boolean(albers.A && albers.B);
+
+    // Colores que se ven: fondos empujados hacia el centro y cuadrados tomados de la gradación entre los fondos
+    function albersColors() {
+      if (!albersReady()) return { ready: false, groundA: albers.A, groundB: albers.B, insetA: null, insetB: null, marks: [] };
+      const groundA = mixHex(albers.A, albers.B, albers.push);
+      const groundB = mixHex(albers.B, albers.A, albers.push);
+      if (albers.exercise === "dos-uno") {
+        const tA = Math.max(0, albers.t - albers.diff);
+        const tB = Math.min(1, albers.t + albers.diff);
+        return { ready: true, groundA, groundB, insetA: mixHex(albers.A, albers.B, tA), insetB: mixHex(albers.A, albers.B, tB), marks: [tA, tB] };
+      }
+      const middle = mixHex(albers.A, albers.B, albers.t);
+      return { ready: true, groundA, groundB, insetA: middle, insetB: middle, marks: [albers.t] };
+    }
+
+    function editAlbersColor(key) {
+      openColorPicker(ALBERS_LABELS[key], albers[key] || "#CCCCCC", value => {
+        albers[key] = value;
+        renderAlbers();
+      });
+    }
+
+    function renderAlbersSvg() {
+      const c = albersColors();
+      const ns = "http://www.w3.org/2000/svg";
+      albersSvg.replaceChildren();
+      // Las zonas sin color se dibujan como plantilla: contorno y una indicación
+      const shape = (x, y, w, h, fill, opts = {}) => {
+        const el = document.createElementNS(ns, "rect");
+        Object.entries({ x, y, width: w, height: h, fill: fill || "#ffffff" }).forEach(([k, v]) => el.setAttribute(k, v));
+        if (!fill) {
+          el.setAttribute("stroke", "#9aa3b5");
+          el.setAttribute("stroke-width", "1.2");
+          if (opts.dashed) el.setAttribute("stroke-dasharray", "5 4");
+          el.dataset.empty = "true";
+        }
+        if (opts.key) el.dataset.key = opts.key;
+        if (opts.inset) el.dataset.inset = "true";
+        albersSvg.appendChild(el);
+        if (!fill && opts.label) {
+          const text = document.createElementNS(ns, "text");
+          text.setAttribute("x", x + w / 2);
+          text.setAttribute("y", y + 34);
+          text.setAttribute("text-anchor", "middle");
+          text.setAttribute("fill", "#64748b");
+          text.setAttribute("font-size", "11");
+          text.setAttribute("font-family", "-apple-system, BlinkMacSystemFont, sans-serif");
+          text.style.pointerEvents = "none";
+          const line1 = document.createElementNS(ns, "tspan");
+          line1.setAttribute("x", x + w / 2);
+          line1.setAttribute("font-weight", "700");
+          line1.textContent = opts.label;
+          const line2 = document.createElementNS(ns, "tspan");
+          line2.setAttribute("x", x + w / 2);
+          line2.setAttribute("dy", "14");
+          line2.textContent = "toca para elegir";
+          text.append(line1, line2);
+          albersSvg.appendChild(text);
+        }
+      };
+      if (albers.exercise === "cinco-seis") {
+        shape(0, 0, 100, 250, c.groundA, { key: "A", label: "Fondo A" });
+        shape(300, 0, 100, 250, c.groundB, { key: "B", label: "Fondo B" });
+        if (!albers.joined) shape(40, 100, 320, 50, c.insetA, { dashed: true, inset: true });
+        shape(100, 0, 100, 250, albers.C, { key: "C", label: "Banda A" });
+        shape(200, 0, 100, 250, albers.D, { key: "D", label: "Banda B" });
+        if (albers.joined) shape(40, 100, 320, 50, c.insetA, { dashed: true, inset: true });
+        return;
+      }
+      shape(0, 0, 200, 250, c.groundA, { key: "A", label: "Fondo A" });
+      shape(200, 0, 200, 250, c.groundB, { key: "B", label: "Fondo B" });
+      shape(72, 89, 56, 72, c.insetA, { dashed: true, inset: true });
+      shape(272, 89, 56, 72, c.insetB, { dashed: true, inset: true });
+      if (albers.joined && c.ready) {
+        shape(100, 113, 100, 24, c.insetA);
+        shape(200, 113, 100, 24, c.insetB);
+      }
+    }
+
+    function renderAlbersStrip() {
+      const c = albersColors();
+      albersStrip.replaceChildren();
+      albersStrip.classList.toggle("empty", !c.ready);
+      albersStrip.tabIndex = c.ready ? 0 : -1;
+      albersStrip.setAttribute("aria-disabled", String(!c.ready));
+      if (!c.ready) {
+        albersStrip.style.background = "";
+        albersStrip.textContent = "Elige los dos fondos para crear la gradación";
+        return;
+      }
+      albersStrip.style.background = `linear-gradient(to right, ${albers.A}, ${albers.B})`;
+      c.marks.forEach(t => {
+        const mark = document.createElement("span");
+        mark.className = "albers-marker";
+        mark.style.left = `${t * 100}%`;
+        albersStrip.appendChild(mark);
+      });
+      albersStrip.setAttribute("aria-valuenow", Math.round(albers.t * 100));
+      albersStrip.setAttribute("aria-valuetext", `${Math.round(albers.t * 100)} % entre el fondo A y el fondo B`);
+    }
+
+    function renderAlbersColors() {
+      const c = albersColors();
+      const box = document.getElementById("albersColors");
+      box.replaceChildren();
+      const add = (label, hex, editKey) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = `albers-color${editKey ? "" : " fixed"}${hex ? "" : " empty"}`;
+        const chip = document.createElement("i");
+        if (hex) chip.style.backgroundColor = hex;
+        const text = document.createElement("span");
+        const name = document.createElement("b");
+        name.textContent = label;
+        const code = document.createElement("code");
+        code.textContent = hex || (editKey ? "sin elegir" : "—");
+        text.append(name, code);
+        btn.append(chip, text);
+        if (editKey) {
+          btn.setAttribute("aria-label", hex ? `Cambiar ${label.toLowerCase()} (${hex})` : `Elegir ${label.toLowerCase()}`);
+          btn.addEventListener("click", () => editAlbersColor(editKey));
+        } else {
+          btn.disabled = true;
+          btn.setAttribute("aria-label", `${label}: ${hex || "todavía sin color"}`);
+        }
+        box.appendChild(btn);
+      };
+      add("Fondo A", albers.A, "A");
+      add("Fondo B", albers.B, "B");
+      if (albers.exercise === "cinco-seis") {
+        add("Banda A", albers.C, "C");
+        add("Banda B", albers.D, "D");
+        add("Franja", c.insetA, null);
+      } else if (albers.exercise === "dos-uno") {
+        add("Cuadrado A", c.insetA, null);
+        add("Cuadrado B", c.insetB, null);
+      } else {
+        add("Cuadrados", c.insetA, null);
+      }
+    }
+
+    function renderAlbers() {
+      const ex = ALBERS_EXERCISES[albers.exercise];
+      const ready = albersReady();
+      if (!ready) albers.joined = false;
+      albersView.dataset.exercise = albers.exercise;
+      albersExercise.value = albers.exercise;
+      document.getElementById("albersWhat").textContent = ex.what;
+      const steps = document.getElementById("albersSteps");
+      steps.replaceChildren(...ex.steps.map(text => {
+        const li = document.createElement("li");
+        li.textContent = text;
+        return li;
+      }));
+      albersPush.value = Math.round(albers.push * 100);
+      albersDiff.value = Math.round(albers.diff * 100);
+      document.getElementById("albersPushVal").textContent = `${Math.round(albers.push * 100)} %`;
+      document.getElementById("albersDiffVal").textContent = `${Math.round(albers.diff * 100)} %`;
+      // Los controles se activan cuando ya hay dos fondos
+      albersPush.disabled = !ready;
+      albersDiff.disabled = !ready;
+      albersJoinBtn.disabled = !ready;
+      const noun = albers.exercise === "cinco-seis" ? "la franja" : "los cuadrados";
+      albersJoinBtn.textContent = albers.joined ? `Separar ${noun}` : `Unir ${noun}`;
+      albersJoinBtn.setAttribute("aria-pressed", String(albers.joined));
+      renderAlbersSvg();
+      renderAlbersStrip();
+      renderAlbersColors();
+    }
+
+    // Cambiar de ejercicio conserva los colores ya elegidos
+    function setAlbersExercise(key) {
+      albers.exercise = key;
+      albers.joined = false;
+      renderAlbers();
+    }
+
+    albersExercise.addEventListener("change", () => setAlbersExercise(albersExercise.value));
+    albersSvg.addEventListener("click", e => {
+      const target = e.target.closest("[data-key]");
+      if (target) {
+        editAlbersColor(target.dataset.key);
+      } else if (e.target.closest("[data-inset]")) {
+        // El color de los cuadrados y de la franja sale de la gradación entre los fondos
+        showToast(albersReady()
+          ? "Desliza en la gradación para cambiar este color"
+          : "Este color sale de la gradación: elige primero los dos fondos");
+      }
+    });
+
+    // Cada demostración carga una combinación de ejemplo distinta de la anterior
+    document.getElementById("albersDemoBtn").addEventListener("click", () => {
+      // Se reparten todas las combinaciones antes de repetir ninguna
+      if (!albersDeck.length) albersDeck = shuffle([...ALBERS_PRESETS.keys()].filter(i => i !== lastAlbersDemo));
+      const idx = albersDeck.pop();
+      lastAlbersDemo = idx;
+      applyAlbersPreset(ALBERS_PRESETS[idx]);
+      renderAlbers();
+      showToast(`Demostración: ${ALBERS_PRESETS[idx].name.toLowerCase()}`);
+    });
+    document.getElementById("albersClearBtn").addEventListener("click", () => {
+      clearAlbers();
+      renderAlbers();
+    });
+    albersPush.addEventListener("input", () => {
+      albers.push = Number(albersPush.value) / 100;
+      renderAlbers();
+    });
+    albersDiff.addEventListener("input", () => {
+      albers.diff = Number(albersDiff.value) / 100;
+      renderAlbers();
+    });
+    albersJoinBtn.addEventListener("click", () => {
+      albers.joined = !albers.joined;
+      renderAlbers();
+    });
+
+    // Deslizar sobre la gradación elige el color medio (con lupa)
+    (function attachAlbersStrip() {
+      let active = false;
+      const update = e => {
+        const rect = albersStrip.getBoundingClientRect();
+        const margin = albers.exercise === "dos-uno" ? albers.diff : 0;
+        const t = Math.max(margin, Math.min(1 - margin, (e.clientX - rect.left) / rect.width));
+        albers.t = t;
+        renderAlbers();
+        showLoupe(e.clientX, rect.top, mixHex(albers.A, albers.B, t), e.pointerType);
+      };
+      albersStrip.addEventListener("pointerdown", e => {
+        if (!e.isPrimary || !albersReady()) return;
+        e.preventDefault();
+        active = true;
+        capturePointer(albersStrip, e.pointerId);
+        update(e);
+      });
+      albersStrip.addEventListener("pointermove", e => {
+        if (active) update(e);
+      });
+      ["pointerup", "pointercancel", "lostpointercapture"].forEach(type => {
+        albersStrip.addEventListener(type, () => {
+          active = false;
+          hideLoupe();
+        });
+      });
+      albersStrip.addEventListener("keydown", e => {
+        const delta = { ArrowRight: 0.02, ArrowUp: 0.02, ArrowLeft: -0.02, ArrowDown: -0.02 }[e.key];
+        if (delta === undefined || !albersReady()) return;
+        e.preventDefault();
+        albers.t = Math.max(0, Math.min(1, albers.t + delta));
+        renderAlbers();
+      });
+      albersStrip.addEventListener("contextmenu", e => e.preventDefault());
+    })();
+
+    function exportAlbersPng() {
+      const c = albersColors();
+      const size = 1000;
+      const margin = 60;
+      const scale = (size - margin * 2) / 400;
+      const canvas = document.createElement("canvas");
+      canvas.width = size;
+      canvas.height = 1000;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Se redibuja la composición a partir del SVG (solo contiene rectángulos)
+      albersSvg.querySelectorAll("rect").forEach(r => {
+        const x = margin + Number(r.getAttribute("x")) * scale;
+        const y = margin + Number(r.getAttribute("y")) * scale;
+        const w = Number(r.getAttribute("width")) * scale;
+        const h = Number(r.getAttribute("height")) * scale;
+        ctx.fillStyle = r.getAttribute("fill");
+        ctx.fillRect(x, y, w, h);
+        if (r.dataset.empty) {
+          ctx.setLineDash(r.getAttribute("stroke-dasharray") ? [10, 8] : []);
+          ctx.strokeStyle = "#9aa3b5";
+          ctx.lineWidth = 2;
+          ctx.strokeRect(x, y, w, h);
+          ctx.setLineDash([]);
+        }
+      });
+
+      const stripY = margin + 250 * scale + 30;
+      if (c.ready) {
+        const grad = ctx.createLinearGradient(margin, 0, size - margin, 0);
+        grad.addColorStop(0, albers.A);
+        grad.addColorStop(1, albers.B);
+        ctx.fillStyle = grad;
+        ctx.fillRect(margin, stripY, size - margin * 2, 36);
+      } else {
+        ctx.setLineDash([10, 8]);
+        ctx.strokeStyle = "#9aa3b5";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(margin, stripY, size - margin * 2, 36);
+        ctx.setLineDash([]);
+      }
+      c.marks.forEach(t => {
+        const x = margin + t * (size - margin * 2);
+        ctx.strokeStyle = "#111827";
+        ctx.lineWidth = 3;
+        ctx.strokeRect(x - 6, stripY - 4, 12, 44);
+      });
+
+      const font = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+      const title = albersExercise.options[albersExercise.selectedIndex].text;
+      ctx.fillStyle = "#111827";
+      ctx.font = `bold 24px ${font}`;
+      ctx.fillText("ESTUDIO DEL COLOR · INTERACCIÓN DEL COLOR", margin, stripY + 86);
+      ctx.font = `18px ${font}`;
+      ctx.fillStyle = "#1f2937";
+      ctx.fillText(title, margin, stripY + 116);
+      ctx.font = `15px ${font}`;
+      ctx.fillStyle = "#64748b";
+      ctx.fillText("Según Josef Albers, Interaction of Color (1963)", margin, stripY + 142);
+
+      // Colores con su código
+      const swatches = [["Fondo A", c.groundA], ["Fondo B", c.groundB]];
+      if (albers.exercise === "cinco-seis") swatches.push(["Banda A", albers.C], ["Banda B", albers.D], ["Franja", c.insetA]);
+      else if (albers.exercise === "dos-uno") swatches.push(["Cuadrado A", c.insetA], ["Cuadrado B", c.insetB]);
+      else swatches.push(["Cuadrados", c.insetA]);
+      swatches.forEach(([label, hex], i) => {
+        const x = margin + i * 150;
+        const y = stripY + 170;
+        ctx.fillStyle = hex || "#ffffff";
+        ctx.fillRect(x, y, 44, 44);
+        ctx.setLineDash(hex ? [] : [6, 5]);
+        ctx.strokeStyle = hex ? "rgba(0, 0, 0, 0.2)" : "#9aa3b5";
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(x, y, 44, 44);
+        ctx.setLineDash([]);
+        ctx.fillStyle = "#1f2937";
+        ctx.font = `600 13px ${font}`;
+        ctx.fillText(label, x + 52, y + 18);
+        ctx.font = "600 13px ui-monospace, Menlo, Consolas, monospace";
+        ctx.fillText(hex || "sin elegir", x + 52, y + 38);
+      });
+
+      const slug = title.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Za-z0-9]+/g, "_").replace(/^_|_$/g, "");
+      savePng(canvas.toDataURL("image/png"), `Estudio_del_color_Albers_${slug}_${Date.now()}.png`);
+    }
+
+    /* --- Pantalla de inicio y cambio de sección --- */
+
+    function enterSection(section) {
+      appSection = section;
+      document.body.dataset.section = section;
+      home.hidden = true;
+      document.body.classList.remove("home-open");
+      closeMoreMenu();
+      if (section === "armonias") {
+        renderHarmony(true);
+      } else if (section === "interaccion") {
+        renderAlbers();
+      } else if (section === "estrella") {
+        // La acromática no tiene disco: se pasa a la tríada
+        if (harmonyId === "acromatica_acento") {
+          harmonyId = "triada";
+          harmonySelect.value = harmonyId;
+        }
+        renderStar();
+      } else {
+        renderContrastCard();
+        buildIttenWheel();
+        const ex = EXERCISES[exerciseSelect.value];
+        setPoles(ex.c1, ex.c2);
+      }
+      history.replaceState(null, "", `#${section}`);
+      window.scrollTo(0, 0);
+    }
+
+    function showHome(focusCard = true) {
+      closeMoreMenu();
+      home.hidden = false;
+      document.body.classList.add("home-open");
+      history.replaceState(null, "", location.pathname + location.search);
+      if (focusCard) home.querySelector(".home-card").focus();
+    }
+
+    document.querySelectorAll("[data-section-go]").forEach(btn => {
+      btn.addEventListener("click", () => enterSection(btn.dataset.sectionGo));
+    });
+    homeBtn.addEventListener("click", () => showHome());
+    brandBtn.addEventListener("click", () => showHome());
+
+    buildStarMaskSelect();
+    buildStarSvg(document.getElementById("homeStar"), HARMONY_BY_ID.triada.steps, 0, true);
+
+    // Pequeño círculo de 12 tonos con un triángulo para la tarjeta de Armonías
+    (function buildHomeWheel() {
+      const svg = document.getElementById("homeWheel");
+      ITTEN_12.forEach((col, i) => {
+        const a1 = (i * 30 - 105) * Math.PI / 180;
+        const a2 = (i * 30 - 75) * Math.PI / 180;
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", `M ${44 * Math.cos(a1)} ${44 * Math.sin(a1)} A 44 44 0 0 1 ${44 * Math.cos(a2)} ${44 * Math.sin(a2)} L ${28 * Math.cos(a2)} ${28 * Math.sin(a2)} A 28 28 0 0 0 ${28 * Math.cos(a1)} ${28 * Math.sin(a1)} Z`);
+        path.setAttribute("fill", col.hex);
+        svg.appendChild(path);
+      });
+      const tri = [0, 4, 8].map(i => {
+        const a = (i * 30 - 90) * Math.PI / 180;
+        return `${24 * Math.cos(a)},${24 * Math.sin(a)}`;
+      }).join(" ");
+      const poly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+      poly.setAttribute("points", tri);
+      poly.setAttribute("fill", "rgba(255,255,255,0.1)");
+      poly.setAttribute("stroke", "#fff");
+      poly.setAttribute("stroke-width", "2");
+      poly.setAttribute("stroke-dasharray", "4 3");
+      svg.appendChild(poly);
+    })();
+
+    /* --- Paleta desde imagen --- */
+
+    const imageDialog = document.getElementById("imageDialog");
+    const imageInput = document.getElementById("imageInput");
+    const imagePreview = document.getElementById("imagePreview");
+    const imageResults = document.getElementById("imageResults");
+    const imageSwatches = document.getElementById("imageSwatches");
+    const imageDiagnosis = document.getElementById("imageDiagnosis");
+    const imageApplyBtn = document.getElementById("imageApplyBtn");
+    const imageDrop = document.getElementById("imageDrop");
+    let imageMatch = null;
+
+    // Tono (HSV) de cada uno de los 12 colores del círculo, para situar los colores de la imagen
+    const ITTEN_HUES = ITTEN_12.map(c => hexToHsv(c.hex).h);
+
+    function nearestIttenIndex(hue) {
+      let best = 0;
+      let bestDiff = 360;
+      ITTEN_HUES.forEach((h, i) => {
+        const diff = Math.min(Math.abs(h - hue), 360 - Math.abs(h - hue));
+        if (diff < bestDiff) {
+          bestDiff = diff;
+          best = i;
+        }
+      });
+      return best;
+    }
+
+    // Agrupa los píxeles en k colores (k-medias con semillas repartidas)
+    function dominantColors(pixels, k) {
+      const centers = [pixels[Math.floor(pixels.length / 2)]];
+      while (centers.length < k) {
+        let far = pixels[0];
+        let farDist = -1;
+        for (let i = 0; i < pixels.length; i += 7) {
+          const d = Math.min(...centers.map(c => (pixels[i][0] - c[0]) ** 2 + (pixels[i][1] - c[1]) ** 2 + (pixels[i][2] - c[2]) ** 2));
+          if (d > farDist) {
+            farDist = d;
+            far = pixels[i];
+          }
+        }
+        centers.push(far);
+      }
+      let groups = [];
+      for (let iter = 0; iter < 10; iter++) {
+        groups = centers.map(() => ({ sum: [0, 0, 0], count: 0 }));
+        pixels.forEach(px => {
+          let best = 0;
+          let bestDist = Infinity;
+          centers.forEach((c, i) => {
+            const d = (px[0] - c[0]) ** 2 + (px[1] - c[1]) ** 2 + (px[2] - c[2]) ** 2;
+            if (d < bestDist) {
+              bestDist = d;
+              best = i;
+            }
+          });
+          const g = groups[best];
+          g.sum[0] += px[0];
+          g.sum[1] += px[1];
+          g.sum[2] += px[2];
+          g.count++;
+        });
+        groups.forEach((g, i) => {
+          if (g.count) centers[i] = g.sum.map(v => v / g.count);
+        });
+      }
+      return centers
+        .map((c, i) => ({ hex: rgbToHex(...c.map(Math.round)), share: groups[i].count / pixels.length }))
+        .filter(c => c.share >= 0.03)
+        .sort((a, b) => b.share - a.share);
+    }
+
+    function analyzeImage(img) {
+      const scale = Math.min(1, 140 / Math.max(img.naturalWidth, img.naturalHeight));
+      const w = Math.max(1, Math.round(img.naturalWidth * scale));
+      const h = Math.max(1, Math.round(img.naturalHeight * scale));
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, w, h);
+      const data = ctx.getImageData(0, 0, w, h).data;
+      const pixels = [];
+      for (let i = 0; i < data.length; i += 4) {
+        if (data[i + 3] > 128) pixels.push([data[i], data[i + 1], data[i + 2]]);
+      }
+      if (!pixels.length) return;
+
+      const colors = dominantColors(pixels, 7).map(c => {
+        const hsv = hexToHsv(c.hex);
+        const chromatic = hsv.s >= 20 && hsv.v >= 18;
+        return { ...c, chromatic, index: chromatic ? nearestIttenIndex(hsv.h) : null };
+      });
+
+      // Peso de cada tono del círculo en la imagen
+      const weights = new Map();
+      colors.filter(c => c.chromatic).forEach(c => weights.set(c.index, (weights.get(c.index) || 0) + c.share));
+      const present = [...weights.entries()].filter(([, w]) => w >= 0.04).map(([i]) => i);
+      const neutralShare = colors.filter(c => !c.chromatic).reduce((sum, c) => sum + c.share, 0);
+
+      // Armonía más cercana: la que mejor coincide con los tonos presentes (índice de Jaccard)
+      let match = null;
+      if (present.length === 1) {
+        match = { id: neutralShare > 0.4 ? "acromatica_acento" : "monocromatica", base: present[0], score: 1 };
+      } else if (present.length > 1) {
+        HARMONIES.filter(h => h.steps.length > 1).forEach(h => {
+          for (let b = 0; b < 12; b++) {
+            const expected = new Set(h.steps.map(step => (b + step) % 12));
+            const shared = present.filter(i => expected.has(i)).length;
+            const score = shared / (expected.size + present.length - shared);
+            const weight = present.filter(i => expected.has(i)).reduce((sum, i) => sum + weights.get(i), 0);
+            if (!match || score > match.score || (score === match.score && weight > match.weight)) {
+              match = { id: h.id, base: b, score, weight };
+            }
+          }
+        });
+      }
+      imageMatch = match;
+
+      imageSwatches.replaceChildren();
+      colors.forEach(c => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "harmony-swatch";
+        btn.dataset.color = c.hex;
+        btn.setAttribute("aria-label", `Pintar con ${c.hex}`);
+        const chip = document.createElement("i");
+        chip.style.backgroundColor = c.hex;
+        const label = document.createElement("span");
+        label.textContent = c.chromatic ? ITTEN_12[c.index].name : "Neutro";
+        const code = document.createElement("code");
+        code.textContent = `${c.hex} · ${Math.round(c.share * 100)} %`;
+        btn.append(chip, label, code);
+        btn.addEventListener("click", () => {
+          setCurrentColor(c.hex);
+          imageSwatches.querySelectorAll(".harmony-swatch").forEach(b => b.classList.toggle("is-current", b === btn));
+        });
+        imageSwatches.appendChild(btn);
+      });
+
+      const toneNames = present.map(i => ITTEN_12[i].name.toLowerCase());
+      let text;
+      if (!match) {
+        text = "La imagen es casi acromática: sus colores dominantes son blancos, grises o negros, así que no se puede situar en el círculo.";
+        imageApplyBtn.hidden = true;
+      } else {
+        const h = HARMONY_BY_ID[match.id];
+        text = `Tonos presentes en el círculo: <b>${listNames(toneNames)}</b>`;
+        if (neutralShare >= 0.1) text += `, con un ${Math.round(neutralShare * 100)} % de neutros`;
+        text += `. La armonía más cercana es <b>${h.name}</b> con tono base <b>${ITTEN_12[match.base].name.toLowerCase()}</b> (coincidencia del ${Math.round(match.score * 100)} %).`;
+        if (match.score < 0.6) text += " La paleta es variada: tómalo como una aproximación y ajusta los tonos sueltos hacia la figura de la armonía.";
+        imageApplyBtn.hidden = false;
+      }
+      imageDiagnosis.innerHTML = text;
+      imageResults.hidden = false;
+    }
+
+    function loadImageFile(file) {
+      if (!file || !file.type.startsWith("image/")) return;
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        imagePreview.src = url;
+        analyzeImage(img);
+      };
+      img.src = url;
+    }
+
+    function loadSampleImage() {
+      // Ejemplo sintético: azul frente a naranjas y amarillo-naranja
+      const c = document.createElement("canvas");
+      c.width = 400;
+      c.height = 300;
+      const ctx = c.getContext("2d");
+      ctx.fillStyle = "#0A3D8C";
+      ctx.fillRect(0, 0, 400, 300);
+      ctx.fillStyle = "#F26A12";
+      ctx.beginPath();
+      ctx.arc(160, 150, 90, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#F7A21B";
+      ctx.fillRect(220, 90, 120, 140);
+      const url = c.toDataURL("image/png");
+      const img = new Image();
+      img.onload = () => {
+        imagePreview.src = url;
+        analyzeImage(img);
+      };
+      img.src = url;
+    }
+
+    document.getElementById("imagePaletteBtn").addEventListener("click", () => imageDialog.showModal());
+    document.getElementById("imagePickBtn").addEventListener("click", () => imageInput.click());
+    document.getElementById("imageSampleBtn").addEventListener("click", loadSampleImage);
+    imageInput.addEventListener("change", () => {
+      loadImageFile(imageInput.files[0]);
+      imageInput.value = "";
+    });
+    imageDialog.querySelector("[data-img-close]").addEventListener("click", () => imageDialog.close());
+    imageDialog.addEventListener("click", e => {
+      if (e.target === imageDialog) imageDialog.close();
+    });
+    imageDrop.addEventListener("dragover", e => {
+      e.preventDefault();
+      imageDrop.querySelector(".img-drop").classList.add("dragover");
+    });
+    imageDrop.addEventListener("dragleave", () => imageDrop.querySelector(".img-drop").classList.remove("dragover"));
+    imageDrop.addEventListener("drop", e => {
+      e.preventDefault();
+      imageDrop.querySelector(".img-drop").classList.remove("dragover");
+      loadImageFile(e.dataTransfer.files[0]);
+    });
+    if (!window.matchMedia("(pointer: fine)").matches) document.getElementById("imageDropHint").hidden = true;
+
+    imageApplyBtn.addEventListener("click", () => {
+      if (!imageMatch) return;
+      harmonyId = imageMatch.id;
+      baseToneIdx = imageMatch.base;
+      harmonySelect.value = harmonyId;
+      renderHarmony(true);
+      imageDialog.close();
+      showToast(`Armonía aplicada: ${HARMONY_BY_ID[harmonyId].name}`);
     });
 
     let toastTimer = null;
@@ -2913,14 +5261,22 @@
 
     exportBtn.addEventListener("click", () => {
       closeMoreMenu();
-      exportPng();
+      if (appSection === "estrella") exportStarPng();
+      else if (appSection === "interaccion") exportAlbersPng();
+      else exportPng();
     });
 
     function exportPng() {
       const exportSize = 1000;
       const margin = 60;
       const cellSize = (exportSize - margin * 2) / gridSize;
-      const exName = EXERCISES[exerciseSelect.value].title;
+      const harmony = HARMONY_BY_ID[harmonyId];
+      const exName = appSection === "armonias"
+        ? `${harmony.name} · tono base ${ITTEN_12[baseToneIdx].name.toLowerCase()}`
+        : EXERCISES[exerciseSelect.value].title;
+      const sourceLine = appSection === "armonias" && harmony.source !== "itten"
+        ? `Fuente: ${harmony.authors} · círculo de 12 tonos de Johannes Itten`
+        : "Según Johannes Itten, Kunst der Farbe (El arte del color, 1961)";
       const darkFrame = frameTone === "dark";
       const font = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
       const textColor = darkFrame ? "#cbd5e1" : "#1f2937";
@@ -2929,7 +5285,7 @@
       const lines = [
         { text: "ESTUDIO DEL COLOR", font: `bold 24px ${font}`, y: 28, color: darkFrame ? "#f0f2f5" : "#111827" },
         { text: `${exName} — Retícula ${gridSize}×${gridSize}`, font: `18px ${font}`, y: 60, color: textColor },
-        { text: "Según Johannes Itten, Kunst der Farbe (El arte del color, 1961)", font: `15px ${font}`, y: 88,
+        { text: sourceLine, font: `15px ${font}`, y: 88,
           color: darkFrame ? "#94a3b8" : frameTone === "mid" ? "#1f2937" : "#64748b" }
       ];
 
@@ -3002,7 +5358,7 @@
       });
       ctx.textAlign = "left";
 
-      const slug = exName.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, "_");
+      const slug = exName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Za-z0-9]+/g, "_").replace(/^_|_$/g, "");
       savePng(canvas.toDataURL("image/png"), `Estudio_del_color_${slug}_${Date.now()}.png`);
     }
 
@@ -3132,6 +5488,8 @@
        14. INICIALIZACIÓN
        ========================================================================= */
 
+    buildHarmonySelect();
+    document.body.dataset.section = appSection;
     buildIttenWheel();
     cardDesc.textContent = EXERCISES.libre.desc;
     createGrid(gridSize);
@@ -3140,6 +5498,11 @@
     setCurrentColor(currentColor);
     updateHistoryButtons();
     syncSectionToggles();
+
+    // Se entra por la pantalla de inicio, salvo que el enlace indique la sección (#contrastes o #armonias)
+    const initialSection = location.hash.slice(1);
+    if (["contrastes", "armonias", "estrella", "interaccion"].includes(initialSection)) enterSection(initialSection);
+    else showHome(false);
 
     // Funcionamiento sin conexión: el service worker solo se registra en http(s) o localhost
     if ("serviceWorker" in navigator && window.isSecureContext && location.protocol !== "file:") {
