@@ -1,11 +1,12 @@
 /* Service worker de «Estudio del color»: caché primero, para que la app funcione sin conexión.
    Al publicar cambios en cualquier archivo, sube el número de CACHE_VERSION. */
-const CACHE_VERSION = "v4";
+const CACHE_VERSION = "v5";
 const CACHE_NAME = `estudio-del-color-${CACHE_VERSION}`;
 const APP_SHELL = [
   "./",
   "./index.html",
   "./itten_color_studio.html",
+  "./simulacro.html",
   "./manifest.webmanifest",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
